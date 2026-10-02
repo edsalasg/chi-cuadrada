@@ -1,0 +1,2057 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>La prueba Chi-cuadrado (χ²)</title>
+<meta name="description" content="Sesión doctoral sobre chi cuadrada y tablas cruzadas: la distribución χ², la prueba de independencia y su práctica en SPSS. Presentación de Maritza Moreno Grano.">
+<meta name="author" content="Maritza Moreno Grano">
+<style>
+:root{
+  color-scheme: light;
+  --surface-0:#f4f3f0; --surface-1:#fcfcfb; --surface-2:#eceae5;
+  --line:#e0ded7; --line-strong:#c9c6bd;
+  --ink:#0b0b0b; --ink-2:#52514e; --ink-3:#7d7b74;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --s5:#e87ba4;
+  --s1-soft:#e4eefb;
+  --seq-100:#cde2fb; --seq-200:#9ec5f4; --seq-300:#6da7ec; --seq-400:#3987e5;
+  --seq-500:#256abf; --seq-600:#184f95; --seq-700:#0d366b;
+  --accent:#2a78d6; --warn:#b4690e; --ok:#00713a;
+  --brand:#24398A; --gold:#E1B73D; --brand-soft:#e8ebf6; --gold-soft:#fbf3dd;
+  --radius:10px;
+  --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+  --serif:"Times New Roman",Times,Georgia,serif;
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --surface-0:#111110; --surface-1:#1a1a19; --surface-2:#232321;
+  --line:#33332f; --line-strong:#4a4a45;
+  --ink:#ffffff; --ink-2:#c3c2b7; --ink-3:#8f8e85;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181;
+  --s1-soft:#172b45;
+  --seq-100:#0d366b; --seq-200:#184f95; --seq-300:#256abf; --seq-400:#3987e5;
+  --seq-500:#6da7ec; --seq-600:#9ec5f4; --seq-700:#cde2fb;
+  --accent:#3987e5; --warn:#e0a458; --ok:#4fbf85;
+  --brand:#8fa4ec; --gold:#E1B73D; --brand-soft:#1c2440; --gold-soft:#2e2718;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:var(--font); background:var(--surface-0); color:var(--ink);
+  -webkit-font-smoothing:antialiased; line-height:1.55; overflow:hidden;
+}
+
+/* ---------- Deck shell ---------- */
+#deck{position:fixed; inset:0; display:flex; align-items:center; justify-content:center; padding:0}
+.slide{
+  position:absolute; inset:0; display:none; flex-direction:column;
+  padding:clamp(24px,3.2vw,54px) clamp(24px,4.5vw,86px) 72px;
+  overflow-y:auto; overflow-x:hidden; background:var(--surface-0);
+  animation:fade .28s ease;
+}
+.slide.active{display:flex}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.slide-inner{width:100%; max-width:1180px; margin:0 auto}
+
+/* ---------- Typography ---------- */
+.eyebrow{
+  font-size:clamp(11px,1.05vw,13px); font-weight:650; letter-spacing:.09em;
+  text-transform:uppercase; color:var(--brand); margin:0 0 10px;
+}
+h1{font-size:clamp(30px,4.6vw,60px); line-height:1.08; letter-spacing:-.022em; margin:0 0 18px; font-weight:680}
+h2{font-size:clamp(23px,3.1vw,40px); line-height:1.14; letter-spacing:-.018em; margin:0 0 12px; font-weight:660}
+.slide:not(.cover) h2::after{
+  content:""; display:block; width:56px; height:3px; border-radius:2px; margin-top:9px;
+  background:linear-gradient(90deg,var(--brand) 0%,var(--brand) 45%,var(--gold) 55%,var(--gold) 100%);
+}
+h3{font-size:clamp(16px,1.6vw,21px); line-height:1.3; margin:0 0 10px; font-weight:640; letter-spacing:-.008em}
+p{margin:0 0 14px; font-size:clamp(14px,1.35vw,18px); color:var(--ink-2); max-width:74ch}
+.lead{font-size:clamp(16px,1.75vw,23px); color:var(--ink-2); max-width:60ch; line-height:1.45}
+strong{color:var(--ink); font-weight:640}
+ul,ol{margin:0 0 16px; padding-left:1.15em; font-size:clamp(14px,1.35vw,18px); color:var(--ink-2); max-width:74ch}
+li{margin-bottom:9px}
+li::marker{color:var(--ink-3)}
+a{color:var(--accent); text-decoration:none; border-bottom:1px solid color-mix(in srgb,var(--accent) 35%,transparent)}
+a:hover{border-bottom-color:var(--accent)}
+code,.mono{font-family:var(--mono); font-size:.9em}
+
+/* ---------- Layout helpers ---------- */
+.grid{display:grid; gap:clamp(16px,2vw,32px)}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g-6-4{grid-template-columns:minmax(0,6fr) minmax(0,4fr)}
+.g-4-6{grid-template-columns:minmax(0,4fr) minmax(0,6fr)}
+.g-5-5{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g-7-3{grid-template-columns:minmax(0,7fr) minmax(0,3fr)}
+@media(max-width:900px){.g2,.g3,.g-6-4,.g-4-6,.g-5-5,.g-7-3{grid-template-columns:1fr}}
+.center{display:flex; flex-direction:column; justify-content:center; min-height:100%}
+.mt{margin-top:20px} .mt-s{margin-top:12px} .mb0{margin-bottom:0}
+
+/* ---------- Cards ---------- */
+.card{
+  background:var(--surface-1); border:1px solid var(--line); border-radius:var(--radius);
+  padding:clamp(14px,1.5vw,22px);
+}
+.card h3{margin-top:0}
+.card-accent{border-left:3px solid var(--accent)}
+.card-warn{border-left:3px solid var(--warn)}
+.card-ok{border-left:3px solid var(--ok)}
+.callout{
+  background:var(--s1-soft); border:1px solid color-mix(in srgb,var(--accent) 25%,var(--line));
+  border-radius:var(--radius); padding:clamp(14px,1.5vw,20px); margin:16px 0;
+}
+.callout p:last-child{margin-bottom:0}
+.callout .k{font-weight:650; color:var(--ink); display:block; margin-bottom:4px; font-size:clamp(13px,1.2vw,16px)}
+
+/* ---------- Tables ---------- */
+.tbl-wrap{overflow-x:auto; margin:0 0 14px; max-width:100%}
+table{table-layout:auto; max-width:100%}
+table{border-collapse:collapse; width:100%; font-size:clamp(12px,1.15vw,15.5px); font-variant-numeric:tabular-nums}
+th,td{padding:7px 11px; text-align:right; border-bottom:1px solid var(--line)}
+th:first-child,td:first-child{text-align:left}
+th .mx{text-transform:none}
+thead th{
+  font-weight:620; color:var(--ink-2); font-size:.88em; letter-spacing:.02em;
+  text-transform:uppercase; border-bottom:1px solid var(--line-strong); white-space:nowrap;
+}
+tbody tr:hover{background:var(--surface-2)}
+tfoot td{font-weight:650; color:var(--ink); border-top:1px solid var(--line-strong); border-bottom:none}
+caption{caption-side:bottom; text-align:left; padding-top:9px; font-size:.85em; color:var(--ink-3)}
+.t-compact th,.t-compact td{padding:5px 9px}
+.t-left td,.t-left th{text-align:left}
+td.hl,th.hl{background:var(--s1-soft)}
+.num{font-variant-numeric:tabular-nums}
+
+/* ---------- Chips / badges ---------- */
+.chips{display:flex; flex-wrap:wrap; gap:8px; margin:0 0 14px}
+.chip{
+  font-size:clamp(11px,1.05vw,13.5px); padding:4px 11px; border-radius:100px;
+  background:var(--surface-2); color:var(--ink-2); border:1px solid var(--line); font-weight:520;
+}
+.chip.on{background:var(--accent); color:#fff; border-color:var(--accent)}
+.badge{
+  display:inline-block; font-size:.78em; font-weight:650; letter-spacing:.05em; text-transform:uppercase;
+  padding:3px 9px; border-radius:5px; background:var(--surface-2); color:var(--ink-2); border:1px solid var(--line);
+}
+.badge.b1{background:var(--s1-soft); color:var(--accent); border-color:color-mix(in srgb,var(--accent) 30%,transparent)}
+.badge.bw{background:var(--gold-soft); color:var(--warn); border-color:color-mix(in srgb,var(--warn) 35%,transparent)}
+
+/* ---------- Buttons / controls ---------- */
+button, .btn{
+  font-family:inherit; font-size:clamp(12px,1.15vw,14.5px); font-weight:560;
+  padding:7px 15px; border-radius:7px; border:1px solid var(--line-strong);
+  background:var(--surface-1); color:var(--ink); cursor:pointer; transition:.15s;
+}
+button:hover,.btn:hover{background:var(--surface-2); border-color:var(--ink-3)}
+button.on{background:var(--accent); color:#fff; border-color:var(--accent)}
+button.on:hover{filter:brightness(1.08)}
+.ctrl-row{display:flex; flex-wrap:wrap; gap:9px; align-items:center; margin:0 0 14px}
+.ctrl-row label{font-size:clamp(12px,1.15vw,14.5px); color:var(--ink-2); font-weight:520; display:flex; align-items:center; gap:9px}
+input[type=range]{accent-color:var(--accent); width:clamp(120px,16vw,210px)}
+input[type=number],select{
+  font-family:inherit; font-size:clamp(12px,1.15vw,14.5px); padding:6px 9px; border-radius:7px;
+  border:1px solid var(--line-strong); background:var(--surface-1); color:var(--ink); width:7.5em;
+}
+select{width:auto}
+.val{font-family:var(--mono); font-weight:620; color:var(--ink); min-width:2.6em; display:inline-block; text-align:right}
+
+/* ---------- SPSS panel ---------- */
+.spss{
+  background:var(--surface-1); border:1px solid var(--line); border-left:3px solid var(--s3);
+  border-radius:var(--radius); padding:clamp(14px,1.5vw,20px);
+}
+.spss .hd{display:flex; align-items:center; gap:9px; margin-bottom:11px}
+.spss .hd b{font-size:clamp(13px,1.25vw,16px); letter-spacing:-.005em}
+.spss .tag{font-size:.72em; font-weight:700; letter-spacing:.07em; text-transform:uppercase; color:var(--s3); border:1px solid color-mix(in srgb,var(--s3) 35%,transparent); padding:2px 7px; border-radius:4px}
+.spss ol{font-size:clamp(12.5px,1.2vw,15.5px); margin-bottom:0; padding-left:1.25em}
+.spss li{margin-bottom:7px}
+.path{
+  font-family:var(--mono); font-size:.9em; background:var(--surface-2); padding:2px 7px;
+  border-radius:5px; border:1px solid var(--line); color:var(--ink);
+  white-space:normal; overflow-wrap:break-word; box-decoration-break:clone;
+  -webkit-box-decoration-break:clone; line-height:1.7;
+}
+kbd{font-family:var(--mono); font-size:.85em; background:var(--surface-2); border:1px solid var(--line-strong); border-bottom-width:2px; border-radius:4px; padding:1px 6px}
+
+/* ---------- Charts ---------- */
+.chart{width:100%}
+.chart svg{display:block; width:100%; height:auto; overflow:visible}
+.axis line,.axis path,line.axis{stroke:var(--line-strong); stroke-width:1; fill:none}
+.grid-l{stroke:var(--line); stroke-width:1}
+.tick{font-size:12px; fill:var(--ink-3); font-family:var(--font)}
+.axlab{font-size:12.5px; fill:var(--ink-2); font-family:var(--font); font-weight:560}
+.dlab{font-size:12px; fill:var(--ink); font-family:var(--font); font-weight:600; font-variant-numeric:tabular-nums}
+.flab{font-size:13px; fill:var(--ink); font-family:var(--serif); font-style:italic}
+.chart{position:relative; padding-top:12px}
+.chart::before{
+  content:""; position:absolute; top:0; left:0; width:52px; height:2.5px; border-radius:2px;
+  background:linear-gradient(90deg,var(--brand) 0%,var(--brand) 45%,var(--gold) 55%,var(--gold) 100%);
+}
+.chart.plain{padding-top:0}
+.chart.plain::before{display:none}
+.ctitle{font-size:clamp(13px,1.2vw,15.5px); font-weight:620; color:var(--ink); margin:0 0 2px}
+.csub{font-size:clamp(11.5px,1.1vw,13.5px); color:var(--ink-3); margin:0 0 10px}
+.legend{display:flex; flex-wrap:wrap; gap:14px; margin:10px 0 0; font-size:clamp(11.5px,1.1vw,13.5px); color:var(--ink-2)}
+.legend span{display:flex; align-items:center; gap:6px}
+.swatch{width:11px; height:11px; border-radius:3px; flex:none}
+.tip{
+  position:fixed; pointer-events:none; z-index:900; background:var(--surface-1);
+  border:1px solid var(--line-strong); border-radius:7px; padding:7px 11px; font-size:13px;
+  box-shadow:0 4px 18px rgba(0,0,0,.14); opacity:0; transition:opacity .12s; color:var(--ink); max-width:250px;
+}
+.tip.on{opacity:1}
+.tip b{display:block; margin-bottom:2px; font-weight:640}
+.tip .v{font-variant-numeric:tabular-nums; color:var(--ink-2)}
+.mark{transition:opacity .12s}
+.mark:hover{opacity:.82; cursor:pointer}
+
+/* ---------- Fórmulas ---------- */
+.formula{
+  font-family:var(--serif); font-size:clamp(20px,2.3vw,30px); color:var(--ink); line-height:1.3;
+  margin:8px 0 12px; white-space:nowrap;
+}
+.formula.sm{font-size:clamp(16px,1.7vw,22px); margin:4px 0 8px}
+.formula i{font-style:italic}
+.formula .frac{display:inline-flex; flex-direction:column; text-align:center; vertical-align:middle; line-height:1.15; margin:0 .18em}
+.formula .frac>span{padding:0 .25em}
+.formula .frac>span:first-child{border-bottom:1.5px solid currentColor}
+.formula .sq{display:inline-flex; align-items:stretch; vertical-align:middle}
+.formula .sq::before{content:"√"; font-style:normal; margin-right:.05em; align-self:flex-start; line-height:1}
+.formula .sq>span{border-top:1.5px solid currentColor; padding:0 .15em}
+.formula sub{font-size:.62em; font-style:italic}
+.formula sup{font-size:.62em}
+.formula .op{font-style:normal; color:var(--ink-2); margin:0 .15em}
+.formula .lbl{font-family:var(--font); font-style:normal; font-size:.5em; color:var(--ink-3); margin-left:.8em; display:inline-block; white-space:normal; vertical-align:middle; max-width:26em; line-height:1.35}
+.mx{font-family:var(--serif); font-style:italic; font-size:1.08em}
+.hat{position:relative; display:inline-block}
+.hat::after{content:"ˆ"; position:absolute; left:52%; top:-.62em; transform:translateX(-50%); font-size:.85em; font-style:normal; line-height:1}
+.ovl{text-decoration:overline}
+
+/* ---------- Widgets propios del tema ---------- */
+.samples{display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:8px; margin:8px 0 12px}
+.samples .sm{
+  border:1px solid var(--line); border-radius:8px; background:var(--surface-1); padding:8px 6px;
+  text-align:center; font-family:var(--serif); font-style:italic; font-size:clamp(15px,1.5vw,20px); color:var(--ink);
+  transition:.15s;
+}
+.samples .sm.hit{background:var(--brand); color:#fff; border-color:var(--brand)}
+.samples .sm small{display:block; font-family:var(--font); font-style:normal; font-size:11px; color:var(--ink-3); margin-top:2px}
+.samples .sm.hit small{color:#fff; opacity:.85}
+.digits{display:flex; gap:7px; flex-wrap:wrap; margin:6px 0 10px}
+.digits .dg{
+  width:38px; height:44px; border-radius:7px; border:1px solid var(--line-strong); background:var(--surface-1);
+  display:flex; align-items:center; justify-content:center; font-family:var(--mono); font-size:19px; font-weight:640; color:var(--ink-3);
+  transition:.15s;
+}
+.digits .dg.cur{border-color:var(--brand); color:var(--brand); box-shadow:0 0 0 2px var(--brand-soft)}
+.digits .dg.ok{background:var(--ok); color:#fff; border-color:var(--ok)}
+.digits .dg.no{background:var(--surface-2); color:var(--ink-3); text-decoration:line-through}
+.digits .dg.done{opacity:.55}
+.step-log{font-size:clamp(12.5px,1.2vw,15px); color:var(--ink-2); min-height:3.2em; margin:0 0 8px}
+.step-log b{color:var(--ink)}
+.pick{display:flex; gap:8px; align-items:center; margin:0 0 10px; font-size:clamp(13px,1.25vw,16px); color:var(--ink-2)}
+.pick .slot{
+  width:44px; height:44px; border-radius:9px; border:2px dashed var(--line-strong); display:flex; align-items:center; justify-content:center;
+  font-family:var(--serif); font-style:italic; font-size:22px; color:var(--ink);
+}
+.pick .slot.full{border-style:solid; border-color:var(--brand); background:var(--brand-soft)}
+
+.readouts{display:flex; gap:clamp(14px,2.2vw,34px); flex-wrap:wrap; margin:10px 0 4px}
+.readouts .r{display:flex; flex-direction:column}
+.readouts .n{font-size:clamp(18px,2.2vw,28px); font-weight:660; letter-spacing:-.02em; color:var(--ink); font-variant-numeric:tabular-nums; line-height:1.1}
+.readouts .l{font-size:clamp(11px,1.05vw,12.8px); color:var(--ink-3); margin-top:4px; max-width:16ch}
+.readouts .n.b{color:var(--brand)}
+
+.calc{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin:8px 0 10px}
+.calc label{display:flex; flex-direction:column; gap:5px; font-size:clamp(12px,1.15vw,14px); color:var(--ink-2); font-weight:540}
+.calc label>span{display:block}
+.calc input,.calc select{width:100%}
+.result{
+  display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; margin:6px 0 10px; padding:12px 16px;
+  border-radius:var(--radius); background:var(--brand-soft); border:1px solid color-mix(in srgb,var(--brand) 25%,transparent);
+}
+.result .big{font-size:clamp(26px,3.4vw,44px); font-weight:680; letter-spacing:-.03em; color:var(--brand); font-variant-numeric:tabular-nums; line-height:1}
+.result .big sup{font-size:.5em; letter-spacing:0}
+.result .lbl{font-size:clamp(12px,1.15vw,14px); color:var(--ink-2)}
+
+.two-vs{display:grid; grid-template-columns:1fr 1fr; gap:14px}
+@media(max-width:760px){.two-vs{grid-template-columns:1fr}}
+.pend{opacity:.72}
+.dot-legend{display:flex; gap:14px; flex-wrap:wrap; font-size:clamp(11.5px,1.1vw,13.5px); color:var(--ink-2); margin-top:6px}
+.dot-legend span{display:flex; align-items:center; gap:6px}
+.dot-legend i{width:11px; height:11px; border-radius:50%; display:inline-block; flex:none}
+
+/* ---------- Nav / chrome ---------- */
+#bar{
+  position:fixed; left:0; right:0; bottom:0; height:52px; display:flex; align-items:center;
+  gap:12px; padding:0 clamp(14px,2.4vw,30px); background:color-mix(in srgb,var(--surface-1) 92%,transparent);
+  backdrop-filter:blur(10px); border-top:1px solid var(--line); z-index:500;
+}
+#bar .sec{font-size:12.5px; color:var(--ink-3); font-weight:540; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:flex; align-items:center; gap:8px}
+#bar .bchip{font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:#fff;
+  background:var(--brand); padding:2.5px 8px; border-radius:4px; flex:none}
+#bar .bchip.g{background:var(--gold); color:#3a2f0c}
+#bar #btn-menu{border-color:var(--brand); color:var(--brand); font-weight:620}
+#bar #btn-menu:hover{background:var(--brand-soft)}
+#prog{background:linear-gradient(90deg,var(--brand),var(--gold))}
+#bar .cnt{font-size:12.5px; color:var(--ink-3); font-variant-numeric:tabular-nums; font-weight:560}
+#bar button{padding:5px 11px; font-size:13px}
+#prog{position:fixed; top:0; left:0; height:2.5px; background:var(--accent); z-index:600; transition:width .25s}
+#menu{
+  position:fixed; inset:0; background:var(--surface-0); z-index:800; overflow-y:auto;
+  padding:clamp(22px,3.4vw,46px) clamp(22px,4vw,52px) 70px; display:none;
+}
+#menu.on{display:block}
+#menu .mh{display:flex; align-items:baseline; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:6px}
+#menu h2{margin-bottom:0}
+#menu h2::after{content:""; display:block; width:56px; height:3px; border-radius:2px; margin-top:10px;
+  background:linear-gradient(90deg,var(--brand) 0%,var(--brand) 45%,var(--gold) 55%,var(--gold) 100%)}
+.mwrap{max-width:1220px}
+
+/* tarjetas de bloque */
+.blocks{display:grid; grid-template-columns:repeat(auto-fill,minmax(228px,1fr)); gap:11px; margin:24px 0 30px}
+.blk{
+  text-align:left; padding:13px 15px 14px; border-radius:9px; cursor:pointer;
+  border:1px solid var(--line); background:var(--surface-1); position:relative;
+  overflow:hidden; transition:.15s; display:block; width:100%; font-family:inherit;
+}
+.blk::before{content:""; position:absolute; left:0; top:0; bottom:0; width:4px;
+  background:linear-gradient(180deg,var(--brand) 0%,var(--brand) 55%,var(--gold) 55%,var(--gold) 100%); opacity:.85}
+.blk:hover{border-color:var(--brand); background:var(--surface-2); transform:translateY(-1px)}
+.blk.now{border-color:var(--brand); background:var(--brand-soft); box-shadow:0 0 0 1px var(--brand) inset}
+.blk .bn{font-size:10.5px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:var(--brand); display:block; margin-bottom:5px}
+.blk .bt{font-size:15px; font-weight:640; color:var(--ink); line-height:1.25; display:block; margin-bottom:8px; letter-spacing:-.008em}
+.blk .bm{font-size:11.5px; color:var(--ink-3); font-variant-numeric:tabular-nums; display:flex; gap:9px; flex-wrap:wrap}
+.blk .bm .kbd{font-family:var(--mono); border:1px solid var(--line-strong); border-radius:3px; padding:0 4px; color:var(--ink-2)}
+
+/* lista completa */
+.toc{display:grid; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)); gap:7px}
+.toc button{
+  text-align:left; padding:9px 13px; font-size:13.2px; display:flex; gap:11px; align-items:baseline;
+  border-color:var(--line); background:var(--surface-1); line-height:1.35;
+}
+.toc button.now{border-color:var(--brand); background:var(--brand-soft)}
+.toc button .n{font-family:var(--mono); color:var(--ink-3); font-size:.85em; min-width:2em; flex:none}
+.toc .h{grid-column:1/-1; font-size:11.5px; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--brand); margin:20px 0 4px; padding-bottom:6px; border-bottom:2px solid transparent;
+  border-image:linear-gradient(90deg,var(--brand) 0%,var(--gold) 26%,var(--line) 26%) 1}
+.toc .h:first-child{margin-top:0}
+.msub{font-size:12.5px; color:var(--ink-3); margin:0}
+
+/* ---------- Portada ---------- */
+.cover{
+  background:
+    radial-gradient(1100px 620px at 88% -12%, var(--brand-soft) 0%, transparent 62%),
+    var(--surface-0);
+  padding-left:clamp(34px,5.4vw,104px); padding-right:clamp(24px,4vw,72px);
+}
+.cover::before{
+  content:""; position:absolute; left:0; top:0; bottom:52px; width:9px;
+  background:linear-gradient(180deg,var(--brand) 0%,var(--brand) 58%,var(--gold) 58%,var(--gold) 100%);
+}
+.cover .inst{
+  font-size:clamp(12.5px,1.35vw,17px); line-height:1.62; color:var(--brand);
+  font-weight:640; letter-spacing:.005em; margin:0 0 6px;
+}
+.cover .inst .u{font-size:clamp(14px,1.55vw,20px); font-weight:700; letter-spacing:-.01em; display:block}
+.cover .inst .c{color:var(--ink-2); font-weight:520}
+.cover .rule{
+  height:4px; width:118px; border-radius:2px; margin:0 0 24px;
+  background:linear-gradient(90deg,var(--brand) 0%,var(--brand) 46%,var(--gold) 54%,var(--gold) 100%);
+}
+.cover h1{max-width:none; font-size:clamp(30px,4.9vw,62px)}
+.cover .lead{max-width:52ch}
+.cover .meta{
+  font-size:clamp(12.5px,1.3vw,16.5px); color:var(--ink-2); margin-top:30px; line-height:1.72;
+  padding-left:17px; border-left:3px solid var(--gold);
+}
+.cover .meta b{color:var(--ink); font-weight:660}
+.cover .meta .rol{color:var(--brand); font-weight:640}
+.cover .keys{margin-top:26px}
+@media(max-width:760px){ .cover::before{width:6px} }
+
+/* ---------- Misc ---------- */
+.kpi{display:flex; gap:clamp(18px,3vw,48px); flex-wrap:wrap; margin:18px 0}
+.kpi .k{display:flex; flex-direction:column}
+.kpi .n{font-size:clamp(28px,4vw,48px); font-weight:680; line-height:1; letter-spacing:-.03em; color:var(--ink); font-variant-numeric:tabular-nums}
+.kpi .l{font-size:clamp(11.5px,1.1vw,13.5px); color:var(--ink-3); margin-top:7px; max-width:20ch}
+.raw{font-family:var(--mono); font-size:clamp(11px,1.1vw,14px); color:var(--ink-2); line-height:1.85;
+  background:var(--surface-1); border:1px solid var(--line); border-radius:var(--radius); padding:14px; overflow-x:auto}
+.hint{font-size:clamp(11.5px,1.1vw,13.5px); color:var(--ink-3); font-style:italic}
+.q{border-left:3px solid var(--line-strong); padding-left:16px; margin:16px 0; font-size:clamp(14px,1.4vw,18px); color:var(--ink-2)}
+.q cite{display:block; margin-top:8px; font-size:.85em; color:var(--ink-3); font-style:normal}
+.no{color:var(--warn); font-weight:640}
+.yes{color:var(--ok); font-weight:640}
+.dl{display:flex; flex-wrap:wrap; gap:9px; margin:14px 0}
+.dl a,.dl span.f{
+  display:inline-flex; align-items:center; gap:7px; padding:8px 14px; border-radius:7px;
+  border:1px solid var(--line-strong); background:var(--surface-1); color:var(--ink);
+  font-size:clamp(12px,1.15vw,14.5px); font-weight:540; text-decoration:none;
+}
+.dl a:hover{background:var(--surface-2); border-color:var(--accent)}
+.dl a .mono,.dl span.f .mono{color:var(--ink-3); font-size:.85em}
+.dl span.f{opacity:.7; border-style:dashed}
+
+@media(max-width:760px){
+  .slide{padding:20px 18px 66px}
+  #bar .sec{display:none}
+  .kpi{gap:20px}
+  .samples{grid-template-columns:repeat(5,minmax(0,1fr))}
+}
+
+/* ---------- Densidad reducida para láminas cargadas ---------- */
+.slide.dense{padding-top:clamp(18px,2.4vw,38px)}
+.slide.dense h2{font-size:clamp(21px,2.7vw,35px); margin-bottom:8px}
+.slide.dense h2::after{margin-top:7px; width:46px; height:2.5px}
+.slide.dense .chart{padding-top:10px}
+.slide.dense .spss{padding:11px 14px}
+.slide.dense .spss .hd{margin-bottom:8px}
+.slide.dense .spss li{margin-bottom:5px}
+.slide.dense .card,.slide.dense .callout{padding:12px 15px}
+.slide.dense .card h3{font-size:clamp(14px,1.4vw,17px); margin-bottom:7px}
+.slide.dense p,.slide.dense ul,.slide.dense ol{font-size:clamp(12.5px,1.2vw,15.8px); margin-bottom:10px}
+.slide.dense li{margin-bottom:6px}
+.slide.dense .lead{font-size:clamp(14px,1.5vw,19px); margin-bottom:10px}
+.slide.dense .card,.slide.dense .callout,.slide.dense .spss{padding:12px 15px}
+.slide.dense .card h3,.slide.dense .spss b{font-size:clamp(14px,1.35vw,17px)}
+.slide.dense h3{margin-bottom:7px}
+.slide.dense .grid{gap:clamp(12px,1.5vw,22px)}
+.slide.dense .mt{margin-top:13px}
+.slide.dense .mt-s{margin-top:9px}
+.slide.dense .spss ol{font-size:clamp(12px,1.15vw,14.5px)}
+.slide.dense .raw{font-size:clamp(10.5px,1vw,12.8px); padding:11px; line-height:1.6}
+.slide.dense table{font-size:clamp(11.5px,1.05vw,14px)}
+.slide.dense th,.slide.dense td{padding:5px 9px}
+.slide.dense .formula{font-size:clamp(18px,2vw,26px); margin:6px 0 10px}
+.slide.dense .formula.sm{font-size:clamp(15px,1.55vw,20px)}
+.slide.dense .kpi{margin:12px 0}
+.slide.dense .kpi .n{font-size:clamp(24px,3.2vw,40px)}
+
+/* ---------- Print ---------- */
+@media print{
+  @page{size:1280px 800px; margin:0}
+  body{overflow:visible; background:#fff}
+  #bar,#prog,#menu,.tip{display:none !important}
+  #deck{position:static; display:block}
+  .slide{
+    display:flex !important; position:relative; inset:auto; page-break-after:always; break-after:page;
+    min-height:800px; height:800px; width:1280px; animation:none; overflow:hidden; padding:36px 54px;
+  }
+  .slide .card,.slide .callout,.slide .spss{padding:12px 15px}
+  .slide h2{margin-bottom:10px}
+  .slide h2::after{margin-top:8px}
+  .slide .mt{margin-top:15px} .slide .mt-s{margin-top:10px}
+  .slide li{margin-bottom:5px}
+  .slide p{margin-bottom:10px}
+  .slide .grid{gap:16px}
+  .slide table{font-size:13px}
+  .slide th,.slide td{padding:5px 9px}
+  .slide .lead{font-size:17px}
+  .slide-inner > *:last-child{margin-bottom:0 !important}
+  .slide .callout{margin-top:10px; margin-bottom:0}
+}
+
+/* ---------- Complementos para esta sesión (mismo sistema visual) ---------- */
+:root{ --bad:#b23a2a; }
+:root[data-theme="dark"]{ --bad:#e8806e; }
+.c1{color:var(--brand); font-weight:640}
+.c2{color:var(--ok); font-weight:640}
+.rej{color:var(--bad); font-weight:640}
+.acc{color:var(--ok); font-weight:640}
+.term{border-bottom:1px dashed var(--ink-3)}
+.hl-num{color:var(--brand); font-weight:680}
+.tag-k{display:inline-block; font-size:clamp(10.5px,1vw,12px); font-weight:700; letter-spacing:.09em; text-transform:uppercase;
+  color:#fff; background:var(--brand); padding:3px 9px; border-radius:4px; margin:0 0 12px}
+.tag-k.g{background:var(--s3)}
+.tag-k.r{background:var(--bad)}
+.tag-k.o{background:var(--gold); color:#3a2f0c}
+.card .lab,.callout .lab{display:block; font-size:clamp(10.5px,1vw,12px); font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:var(--brand); margin-bottom:6px}
+
+/* lista numerada con círculos, como en el original */
+ol.steps{list-style:none; padding-left:0; max-width:none; counter-reset:st}
+ol.steps>li{counter-increment:st; position:relative; padding:9px 0 11px 50px; margin:0; border-bottom:1px solid var(--line)}
+ol.steps>li:last-child{border-bottom:none}
+ol.steps>li::before{content:counter(st); position:absolute; left:0; top:6px; width:32px; height:32px; border-radius:50%;
+  border:1.5px solid var(--brand); color:var(--brand); font-size:13px; font-weight:600; display:flex; align-items:center; justify-content:center; font-family:var(--mono)}
+
+/* figuras recortadas de las diapositivas originales */
+.fig{margin:0}
+.fig img{display:block; max-width:100%; height:auto; border-radius:8px; border:1px solid var(--line); background:#fff}
+.fig.bare img{border:none; background:transparent}
+.fig figcaption{font-size:clamp(11.5px,1.05vw,13px); color:var(--ink-3); margin-top:7px}
+.fig.full img{margin:0 auto; max-height:calc(100vh - 230px); width:auto}
+.seal{width:clamp(84px,9vw,118px); height:auto; display:block; margin:0 0 16px}
+
+/* salida tipo texto */
+pre.raw{white-space:pre; line-height:1.45; margin:0}
+
+/* tabla centrada como en el original */
+.t-c th,.t-c td{text-align:center}
+.t-c th:first-child,.t-c td:first-child{text-align:center}
+.t-wrap td,.t-wrap th{white-space:normal}
+tr.tot td{font-weight:650; color:var(--ink); background:var(--surface-2)}
+.formula.mono{font-family:var(--mono); font-size:clamp(15px,1.55vw,20px)}
+.formula.wrap{white-space:normal; line-height:2.1}
+.formula .frac.sm>span{font-size:.9em}
+@media(max-width:760px){
+  .formula{white-space:normal}
+  .formula-scroll{overflow-x:auto}
+}
+.grid>*{min-width:0}
+.t-spss caption{caption-side:top; text-align:left; font-style:italic; padding:0 0 6px; color:var(--ink-2)}
+.t-spss.s2 td:nth-child(-n+2),.t-spss.s3 td:nth-child(-n+3){text-align:left}
+.tag-k{align-self:flex-start; width:fit-content}
+
+.formula-scroll{overflow-x:auto; max-width:100%}
+</style>
+</head>
+<body>
+<div id="prog"></div>
+<div class="tip" id="tip"></div>
+<div id="deck">
+
+<!-- ============ 1. PORTADA (diapositiva 1) ============ -->
+<section class="slide cover" data-sec="Introducción">
+  <div class="slide-inner center">
+    <img class="seal" src="assets/d01_escudo_unison.jpg" alt="Escudo de la Universidad de Sonora">
+    <p class="inst">
+      <span class="u">Universidad de Sonora</span>
+      Facultad de Ciencias Económicas y Administrativas<br>
+      Departamento de Administración<br>
+      Doctorado en Ciencias Económicas y Administrativas<br>
+      <span class="c">Procesamiento y análisis de datos</span>
+    </p>
+    <div class="rule"></div>
+    <h1>Tema: Chi cuadrada</h1>
+    <div class="meta">
+      <b>Maritza Moreno Grano</b><br>
+      Hermosillo, Son., 1 de octubre de 2026.
+    </div>
+    <p class="hint keys">Navega con <kbd>→</kbd> <kbd>←</kbd> · Bloques con <kbd>M</kbd> · Tema con <kbd>T</kbd> · Pantalla completa con <kbd>F</kbd></p>
+  </div>
+</section>
+
+<!-- ============ 2. INTRODUCCIÓN (diapositiva 2) ============ -->
+<section class="slide" data-sec="Introducción">
+  <div class="slide-inner center">
+    <p class="eyebrow">Capítulos 11–12 · χ² · Introducción</p>
+    <h2>La prueba Chi-cuadrado (χ²)</h2>
+    <p class="lead">De la distribución que le da nombre a la prueba de independencia entre variables, y de ahí a un ejercicio real hecho paso a paso en SPSS.</p>
+    <div class="grid g3 mt">
+      <div class="card card-accent">
+        <span class="lab">Bloque 1</span>
+        <h3>La distribución χ²</h3>
+        <p class="mb0">Capítulo 11 — qué es, de dónde sale, cómo se calcula.</p>
+      </div>
+      <div class="card card-accent">
+        <span class="lab">Bloque 2</span>
+        <h3>Prueba de independencia</h3>
+        <p class="mb0">Capítulo 12 — ¿dos variables están relacionadas?</p>
+      </div>
+      <div class="card card-accent">
+        <span class="lab">Bloque 3</span>
+        <h3>Práctica en SPSS</h3>
+        <p class="mb0">Un ejercicio guiado, paso a paso.</p>
+      </div>
+    </div>
+    <p class="hint mt">Usa las flechas ← → del teclado, los botones inferiores o desliza para avanzar.</p>
+  </div>
+</section>
+
+<!-- ============ 3. ¿QUÉ ES UNA DISTRIBUCIÓN? (diapositiva 3) ============ -->
+<section class="slide" data-sec="Distribución χ²">
+  <div class="slide-inner center">
+    <span class="tag-k">Bloque 1 · Capítulo 11</span>
+    <h2>¿Qué es una distribución?</h2>
+    <div class="grid g-5-5 mt">
+      <div>
+        <p>Imagina que mides la estatura de <strong class="c1">todos tus compañeros de salón</strong> y anotas cuántos miden cada altura. Si dibujas esos datos en una gráfica de barras, vas a obtener una forma: algunas alturas se repiten mucho (las de en medio) y otras casi no aparecen (las muy altas o muy bajas).</p>
+        <p class="mb0">Esa <span class="term">forma que toman los datos</span> cuando los ordenas y los cuentas es lo que en estadística llamamos <strong class="c1">distribución</strong>. Es simplemente: "¿qué tan seguido aparece cada valor posible?"</p>
+      </div>
+      <figure class="fig bare">
+        <img src="assets/d03_estatura.jpg" alt="Gráfica de barras: cuántos hay según la estatura de los compañeros" loading="lazy">
+        <figcaption>Cada barra = cuántos compañeros miden cierta estatura.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 4. FRUTA FAVORITA (diapositiva 4) ============ -->
+<section class="slide dense" data-sec="Distribución χ²">
+  <div class="slide-inner">
+    <span class="tag-k">Bloque 1 · Capítulo 11</span>
+    <h2>La analogía de la fruta favorita, con categorías</h2>
+    <p class="lead">Le preguntamos a <strong class="c1">30 niños cuál es su fruta favorita</strong>, de entre 5 opciones. Aquí no hay números que promediar — solo categorías que contamos:</p>
+    <div class="grid g-5-5 mt">
+      <div style="align-self:center">
+        <div class="tbl-wrap">
+          <table class="t-c t-compact">
+            <thead><tr><th>Fruta favorita</th><th>Manzana</th><th>Plátano</th><th>Fresa</th><th>Uva</th><th>Durazno</th><th>Total</th></tr></thead>
+            <tbody><tr><td><strong>Niños (frecuencia)</strong></td><td>2</td><td>4</td><td>11</td><td>8</td><td>5</td><td>30</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+      <figure class="fig bare">
+        <img src="assets/d04_fruta.jpg" alt="Gráfica de barras de la fruta favorita: Manzana 2, Plátano 4, Fresa 11, Uva 8, Durazno 5" loading="lazy">
+      </figure>
+    </div>
+    <div class="callout">
+      <span class="k">Cómo se lee</span>
+      <p class="mb0">La mayoría de los niños (11 de 30) eligió <strong class="c1">fresa</strong> — esa es la barra más alta, la categoría "más común". Muy pocos eligieron manzana (2 niños) o durazno (5 niños). Fíjate que aquí <strong class="c2">no existe un orden numérico entre las categorías</strong> — "fresa" no es "más" que "uva", simplemente se repite más veces. Contar frecuencias por categoría, en vez de promediar números, es justo el tipo de dato con el que trabaja la prueba <strong class="c1">chi-cuadrado</strong>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 5. NO TODAS LAS DISTRIBUCIONES (diapositiva 5) ============ -->
+<section class="slide" data-sec="Distribución χ²">
+  <div class="slide-inner center">
+    <span class="tag-k">Bloque 1 · Capítulo 11</span>
+    <h2>No todas las distribuciones tienen la misma forma</h2>
+    <p class="lead">La estatura da una forma de "campana" (la famosa <strong class="c2">distribución normal</strong>). Pero hay datos que <strong class="c1">no son números que se puedan promediar</strong>, sino categorías: color de ojos, sabor favorito de helado, si alguien fuma o no.</p>
+    <div class="callout">
+      <span class="k">El problema</span>
+      <p class="mb0">¿Cómo comparamos "lo que observamos" contra "lo que esperaríamos" cuando trabajamos con categorías y conteos, y no con promedios? Para eso necesitamos una distribución especial: la <strong class="c1">chi-cuadrado (χ²)</strong>.</p>
+    </div>
+    <div class="grid g3">
+      <div class="card">
+        <span class="lab">Datos numéricos</span>
+        <h3>Estatura, peso, tiempo</h3>
+        <p class="mb0">Se resumen con promedio y desviación → usan la distribución normal.</p>
+      </div>
+      <div class="card">
+        <span class="lab">Datos categóricos</span>
+        <h3>Color, sabor, sí/no</h3>
+        <p class="mb0">Se resumen contando frecuencias → aquí es donde entra χ².</p>
+      </div>
+      <div class="card card-accent">
+        <span class="lab">Puente</span>
+        <h3>Chi-cuadrado</h3>
+        <p class="mb0">Compara conteos observados contra conteos esperados.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 6. ¿DE DÓNDE SALE LA χ²? (diapositiva 6) ============ -->
+<section class="slide" data-sec="Distribución χ²">
+  <div class="slide-inner center">
+    <span class="tag-k">Bloque 1 · Capítulo 11</span>
+    <h2>¿De dónde sale la χ²?</h2>
+    <div class="grid g-5-5 mt">
+      <div>
+        <p>La distribución chi-cuadrado nace de una idea muy simple: <strong class="c1">tomar varios valores que siguen una distribución normal "estándar", elevarlos al cuadrado y sumarlos</strong>.</p>
+        <div class="formula-scroll"><div class="formula"><i>χ</i><sup>2</sup><span class="op">=</span><i>Z</i><sub>1</sub><sup>2</sup><span class="op">+</span><i>Z</i><sub>2</sub><sup>2</sup><span class="op">+ … +</span><i>Z</i><sub>k</sub><sup>2</sup></div></div>
+        <p>Donde cada <span class="term">Z</span> es una medición "normalizada" (como una calificación puesta en una escala común) y <span class="term">k</span> es cuántas Z estamos sumando.</p>
+        <p class="mb0">Al elevar al cuadrado, <strong class="c1">todo se vuelve positivo</strong> — ahí nace una de sus características más importantes. Fue Karl Pearson quien, alrededor de 1900, formalizó su uso para comparar frecuencias observadas contra frecuencias esperadas, dando origen a la prueba que hoy lleva su nombre.</p>
+      </div>
+      <div style="align-self:center">
+        <div class="callout">
+          <span class="k">Analogía</span>
+          <p class="mb0">Imagina que mides qué tan lejos cayó cada dardo del centro de un blanco. Si un dardo cae a la izquierda (número negativo) y otro a la derecha (número positivo), y los sumas tal cual, se podrían cancelar. Pero si <strong>elevas cada distancia al cuadrado</strong> antes de sumar, ya no importa el lado: solo importa "qué tan lejos" cayó. Eso es exactamente lo que hace la χ²: convierte diferencias en "qué tan lejos estamos de lo esperado", sin que se cancelen entre sí.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 7. CUATRO RASGOS (diapositiva 7) ============ -->
+<section class="slide" data-sec="Distribución χ²">
+  <div class="slide-inner center">
+    <span class="tag-k">Bloque 1 · Capítulo 11</span>
+    <h2>Cuatro rasgos que definen a la χ²</h2>
+    <div class="grid g2 mt" style="grid-template-columns:repeat(auto-fit,minmax(210px,1fr))">
+      <div class="card">
+        <span class="lab">01 · Positiva</span>
+        <h3>Nunca es negativa</h3>
+        <p class="mb0">Como nace de sumar números al cuadrado, sus valores van de 0 hasta el infinito. Nunca vas a ver un χ² negativo.</p>
+      </div>
+      <div class="card">
+        <span class="lab">02 · Asimétrica</span>
+        <h3>Sesgada a la derecha</h3>
+        <p class="mb0">No es una campana perfecta como la normal: tiene una "cola" larga que se extiende hacia la derecha.</p>
+      </div>
+      <div class="card">
+        <span class="lab">03 · Familia de curvas</span>
+        <h3>No hay una sola χ²</h3>
+        <p class="mb0">Existe una curva distinta para cada valor de grados de libertad (k). Por eso se dice que es una "familia" de distribuciones.</p>
+      </div>
+      <div class="card">
+        <span class="lab">04 · Tiende a la normal</span>
+        <h3>Se "endereza" con k grande</h3>
+        <p class="mb0">A medida que aumentan los grados de libertad, la curva se vuelve más simétrica y se parece cada vez más a una campana normal.</p>
+      </div>
+    </div>
+    <div class="card card-accent mt-s">
+      <span class="lab">Recuerda</span>
+      <h3>La forma cambia, la idea no</h3>
+      <p class="mb0">Sin importar la forma exacta, la χ² siempre mide lo mismo: qué tan lejos está lo observado de lo esperado.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 8. GRADOS DE LIBERTAD (diapositiva 8) ============ -->
+<section class="slide" data-sec="Distribución χ²">
+  <div class="slide-inner center">
+    <span class="tag-k">Bloque 1 · Capítulo 11</span>
+    <h2>El parámetro: grados de libertad (k)</h2>
+    <div class="grid g-5-5 mt">
+      <div>
+        <p>Los <strong class="c1">grados de libertad</strong> son el único "control" que necesita la distribución χ² para saber qué forma tomar. Se representan con la letra <span class="term">k</span> (o a veces <span class="term">gl</span> o <span class="term">df</span>, de "degrees of freedom").</p>
+        <div class="callout">
+          <span class="k">Analogía: la fila de asientos</span>
+          <p class="mb0">Imagina 5 asientos y 5 amigos que deben sentarse. Los primeros 4 amigos pueden elegir <strong>libremente</strong> dónde sentarse. Pero el último amigo ya no tiene opción: le queda el único asiento libre. Ahí tuvo <strong class="c1">4 "grados de libertad"</strong>, no 5, porque el último valor queda determinado por los anteriores.</p>
+        </div>
+        <p class="mb0">En estadística pasa lo mismo: si conoces el total de una tabla y todas las categorías menos una, la última "no es libre": se puede calcular. Los grados de libertad cuentan cuántos valores sí pueden variar libremente.</p>
+      </div>
+      <div style="align-self:center">
+        <div class="card">
+          <h3>¿Cómo se calculan?</h3>
+          <p>Depende del tipo de prueba chi-cuadrado:</p>
+          <div class="tbl-wrap">
+            <table class="t-c t-compact t-wrap">
+              <thead><tr><th>Tipo de prueba</th><th>Fórmula de k</th></tr></thead>
+              <tbody>
+                <tr><td>Bondad de ajuste</td><td><strong>k = categorías − 1</strong></td></tr>
+                <tr><td>Independencia (tabla de contingencia)</td><td><strong>k = (filas − 1)·(columnas − 1)</strong></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="mb0">Vamos a usar ambas fórmulas más adelante con ejemplos reales.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 9. FORMA SEGÚN k (diapositiva 9) ============ -->
+<section class="slide dense" data-sec="Distribución χ²">
+  <div class="slide-inner">
+    <span class="tag-k">Bloque 1 · Capítulo 11</span>
+    <h2>La forma de la χ² según sus grados de libertad</h2>
+    <p class="lead">Mueve el control para ver cómo cambia la curva. Fíjate cómo, con pocos grados de libertad, es muy asimétrica y pegada a la izquierda; y cómo, con muchos, se va pareciendo a una campana normal.</p>
+    <div class="card">
+      <p class="mono" style="margin-bottom:8px">Grados de libertad (k) = <strong class="c1">3</strong> &nbsp;·&nbsp; k=1 &nbsp; k=2 &nbsp; k=4 &nbsp; k=8 &nbsp; k=16 &nbsp; k=24</p>
+      <figure class="fig bare">
+        <img src="assets/d09_curva_k3.jpg" alt="Curva de densidad chi-cuadrado con k = 3; línea punteada en la media = k = 3" loading="lazy">
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 10. ¿PARA QUÉ SE UTILIZA? (diapositiva 10) ============ -->
+<section class="slide" data-sec="Distribución χ²">
+  <div class="slide-inner center">
+    <span class="tag-k">Bloque 1 · Capítulo 11</span>
+    <h2>¿Para qué se utiliza la prueba chi-cuadrado?</h2>
+    <p class="lead">Es una prueba pensada para <strong class="c1">variables cualitativas o categóricas</strong>: se usa muchísimo en ciencias sociales, medicina, mercadotecnia y administración — encuestas, diagnósticos, preferencias de consumo, etc.</p>
+    <div class="callout">
+      <span class="k">El uso que veremos hoy · Capítulo 12</span>
+      <p class="mb0"><strong class="c2">Prueba de independencia:</strong> comprueba si dos variables categóricas están relacionadas entre sí. Ejemplo: ¿el género influye en la preferencia por el café? La exploramos a fondo en el Bloque 2.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 11. ¿EN QUÉ SE BASA? (diapositiva 11) ============ -->
+<section class="slide" data-sec="Distribución χ²">
+  <div class="slide-inner center">
+    <span class="tag-k">Bloque 1 · Capítulo 11</span>
+    <h2>¿En qué se basa la prueba?</h2>
+    <p class="lead">La idea central, en una sola frase para recordar siempre:</p>
+    <div class="callout">
+      <span class="k">La idea central</span>
+      <p class="mb0" style="font-size:clamp(15px,1.6vw,20px);color:var(--ink)">Comparar lo que <strong class="c1">realmente observamos</strong> (frecuencia observada, <i>fo</i>) contra lo que <strong class="c2">esperaríamos ver si no hubiera ningún patrón especial</strong> (frecuencia esperada, <i>fe</i>).</p>
+    </div>
+    <p>Si lo observado se parece mucho a lo esperado, la diferencia es pequeña → χ² pequeño → no hay evidencia de que pase algo raro. Si lo observado se aleja mucho de lo esperado, la diferencia es grande → χ² grande → sí parece haber un patrón o relación real.</p>
+    <div class="callout">
+      <span class="k">Analogía: el detective</span>
+      <p class="mb0">Piensa en χ² como un <strong>detective</strong> que compara "lo que dice la evidencia" (los datos observados) contra "lo que se esperaría si no hubiera ningún culpable" (el escenario neutral). Mientras más grande sea la sospecha (la diferencia), más convencido está el detective de que algo sí está pasando.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 12. CÓMO SE CALCULA χ² (diapositiva 12) ============ -->
+<section class="slide dense" data-sec="Distribución χ²">
+  <div class="slide-inner">
+    <span class="tag-k">Bloque 1 · Capítulo 11</span>
+    <h2>¿Cómo se calcula el estadístico χ²?</h2>
+    <div class="formula"><i>χ</i><sup>2</sup><span class="op">=</span><span class="op">Σ</span><span class="frac"><span>(<i>fo</i> − <i>fe</i>)<sup>2</sup></span><span><i>fe</i></span></span></div>
+    <div class="grid g-5-5">
+      <div>
+        <ol class="steps mb0">
+          <li><strong>fo</strong>: frecuencia observada — el conteo real que obtuviste de tus datos.</li>
+          <li><strong>fe</strong>: frecuencia esperada — el conteo que "debería" haber si no existiera ningún patrón o relación especial.</li>
+          <li><strong>(fo − fe)²</strong>: la diferencia entre ambos, elevada al cuadrado para que siempre sea positiva (así una diferencia "de más" no se cancela con una "de menos").</li>
+          <li><strong>÷ fe</strong>: dividimos entre lo esperado para que la diferencia se mida en proporción, no en números absolutos (una diferencia de 5 pesa distinto si lo esperado era 10 que si era 1000).</li>
+          <li><strong>Σ (sumatoria)</strong>: se suma este resultado para <em>todas</em> las categorías o celdas de la tabla.</li>
+        </ol>
+      </div>
+      <div style="align-self:center">
+        <div class="callout">
+          <span class="k">En pocas palabras</span>
+          <p class="mb0">Para cada grupo de datos: 1) resta lo que viste menos lo que esperabas, 2) eleva el resultado al cuadrado para que no sea negativo, 3) divide entre lo que esperabas para que sea "justo" comparar grupos grandes con chicos, y 4) suma todos esos resultados. El número final te dice qué tan "sorprendido" deberías estar con tus datos.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 13. REGLA DE DECISIÓN (diapositiva 13) ============ -->
+<section class="slide" data-sec="Distribución χ²">
+  <div class="slide-inner center">
+    <span class="tag-k">Bloque 1 · Capítulo 11</span>
+    <h2>La regla de decisión: comparar contra el valor crítico</h2>
+    <div class="grid g-5-5 mt">
+      <div>
+        <p>Para decidir si el resultado es "sospechoso" o no, comparamos nuestro χ² calculado contra un <strong class="c1">valor crítico</strong> que sale de tablas ya elaboradas, según:</p>
+        <ol class="steps">
+          <li><strong>k</strong> — los grados de libertad de nuestra tabla.</li>
+          <li><strong>α (alfa)</strong> — el nivel de significancia que elegimos, casi siempre 0.05 (5%), 0.01 (1%) o 0.10 (10%). Es el margen de error que aceptamos al tomar la decisión.</li>
+        </ol>
+        <div class="formula sm"><i>χ</i><sup>2</sup><sub>crítico</sub><span class="op">=</span><i>χ</i><sup>2</sup><sub>k, α</sub></div>
+      </div>
+      <div style="align-self:center">
+        <div class="card card-accent">
+          <h3>Criterio de decisión</h3>
+          <div class="tbl-wrap">
+            <table class="t-c t-compact t-wrap">
+              <thead><tr><th>Comparación</th><th>Decisión</th></tr></thead>
+              <tbody>
+                <tr><td>χ² &lt; χ²<sub>crítico</sub></td><td class="acc">No se rechaza H<sub>0</sub> (no hay relación / se ajusta)</td></tr>
+                <tr><td>χ² ≥ χ²<sub>crítico</sub></td><td class="rej">Se rechaza H<sub>0</sub> (sí hay relación / no se ajusta)</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="mb0">H<sub>0</sub> es la "hipótesis nula": la afirmación de que no pasa nada especial (independencia, o buen ajuste). La comparamos contra H<sub>1</sub>, la hipótesis alternativa.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 14. COLOR FAVORITO (diapositiva 14) ============ -->
+<section class="slide dense" data-sec="Distribución χ²">
+  <div class="slide-inner">
+    <span class="tag-k">Bloque 1 · Capítulo 11</span>
+    <h2>Ejemplo sencillo: ¿hay un color favorito?</h2>
+    <p class="lead">Preguntamos a <strong class="c1">120 personas</strong> cuál es su color favorito, de entre 6 opciones. Si no hubiera ningún color favorito (todos igual de populares), esperaríamos que cada uno fuera elegido el mismo número de veces: 120 ÷ 6 = <strong class="c2">20 veces cada uno (fe)</strong>.</p>
+    <div class="card card-accent">
+      <h3>Hipótesis</h3>
+      <p class="mb0">H<sub>0</sub>: no hay un color favorito — la preferencia se reparte por igual entre los 6 colores.<br>H<sub>a</sub>: sí hay un color favorito — la preferencia no se reparte por igual entre los 6 colores.</p>
+    </div>
+    <div class="tbl-wrap mt-s">
+      <table class="t-c t-compact">
+        <thead><tr><th>Color</th><th>Rojo</th><th>Azul</th><th>Verde</th><th>Amarillo</th><th>Morado</th><th>Naranja</th></tr></thead>
+        <tbody>
+          <tr><td>Observado (fo)</td><td>18</td><td>22</td><td>16</td><td>25</td><td>19</td><td>20</td></tr>
+          <tr><td>Esperado (fe)</td><td>20</td><td>20</td><td>20</td><td>20</td><td>20</td><td>20</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="grid g-6-4">
+      <div>
+        <p>Aplicamos la fórmula para cada color y sumamos:</p>
+        <div class="formula-scroll"><div class="formula sm"><i>χ</i><sup>2</sup><span class="op">=</span><span class="frac"><span>(18−20)<sup>2</sup></span><span>20</span></span><span class="op">+</span><span class="frac"><span>(22−20)<sup>2</sup></span><span>20</span></span><span class="op">+</span><span class="frac"><span>(16−20)<sup>2</sup></span><span>20</span></span><span class="op">+</span><span class="frac"><span>(25−20)<sup>2</sup></span><span>20</span></span><span class="op">+</span><span class="frac"><span>(19−20)<sup>2</sup></span><span>20</span></span><span class="op">+</span><span class="frac"><span>(20−20)<sup>2</sup></span><span>20</span></span></div></div>
+        <p class="mb0">= 0.2 + 0.2 + 0.8 + 1.25 + 0.05 + 0 = <strong class="hl-num">2.5</strong></p>
+      </div>
+      <div class="card">
+        <h3>Grados de libertad</h3>
+        <p>k = categorías − 1 = 6 − 1 = <strong class="hl-num">5</strong></p>
+        <p>Buscando en una tabla de χ² crítico con k=5 y α=0.05, el valor crítico es aproximadamente <strong class="c2">11.07</strong>.</p>
+        <p class="mb0">Como 2.5 &lt; 11.07, <strong>no se rechaza H<sub>0</sub></strong>: no hay evidencia de que exista un color favorito, las pequeñas diferencias se explican por azar.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 15. ¿QUÉ ES LA PRUEBA DE INDEPENDENCIA? (diapositiva 15) ============ -->
+<section class="slide" data-sec="Independencia">
+  <div class="slide-inner center">
+    <span class="tag-k g">Bloque 2 · Capítulo 12</span>
+    <h2>¿Qué es la prueba de independencia?</h2>
+    <div class="grid g-5-5 mt">
+      <div>
+        <p>Es una forma de usar la distribución χ² para responder una pregunta muy concreta: <strong class="c2">¿dos variables categóricas están relacionadas entre sí, o son completamente independientes?</strong></p>
+        <p>Por ejemplo: ¿el <span class="term">género</span> de una persona está relacionado con su <span class="term">preferencia por el café</span>? ¿O son cosas que no tienen nada que ver una con la otra?</p>
+        <ol class="steps mb0">
+          <li><strong>H<sub>0</sub> (hipótesis nula):</strong> las dos variables son independientes (no están relacionadas).</li>
+          <li><strong>H<sub>1</sub> (hipótesis alternativa):</strong> las dos variables están relacionadas (son dependientes).</li>
+        </ol>
+      </div>
+      <div style="align-self:center">
+        <div class="callout">
+          <span class="k">Analogía</span>
+          <p class="mb0">Imagina que quieres saber si <strong>el mes en que naciste</strong> tiene algo que ver con <strong>tu materia favorita en la escuela</strong>. Si agruparas a tus compañeros por mes de nacimiento y por materia favorita, y comparas esos conteos contra lo que esperarías si no hubiera ninguna relación, estarías haciendo justo esto: comparar si dos variables categóricas (mes de nacimiento, materia favorita) van de la mano o son independientes.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 16. ¿PARA QUÉ SIRVE EN LA VIDA REAL? (diapositiva 16) ============ -->
+<section class="slide" data-sec="Independencia">
+  <div class="slide-inner center">
+    <span class="tag-k g">Bloque 2 · Capítulo 12</span>
+    <h2>¿Para qué sirve en la vida real?</h2>
+    <div class="grid g3 mt">
+      <div class="card">
+        <span class="lab">Salud</span>
+        <h3>¿El tratamiento funciona?</h3>
+        <p class="mb0">¿Está relacionado el tipo de tratamiento con la mejoría del paciente, o el resultado es independiente de qué tratamiento recibió?</p>
+      </div>
+      <div class="card">
+        <span class="lab">Mercadotecnia</span>
+        <h3>¿A quién le gusta qué?</h3>
+        <p class="mb0">¿La edad del cliente está relacionada con la marca que prefiere, o compran por igual sin importar su edad?</p>
+      </div>
+      <div class="card">
+        <span class="lab">Ciencias sociales</span>
+        <h3>¿Hay un patrón social?</h3>
+        <p class="mb0">¿El nivel educativo está relacionado con el tipo de empleo, o son variables que no dependen una de la otra?</p>
+      </div>
+    </div>
+    <div class="callout">
+      <span class="k">Requisitos para usarla</span>
+      <p class="mb0">Los datos deben estar agrupados en frecuencias (conteos), y la muestra debe ser suficientemente grande: como regla práctica, cada casilla de la tabla debería tener una frecuencia esperada de al menos 5. Si hay casillas con menos de 5, conviene combinarlas con otras categorías.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 17. TABLA DE CONTINGENCIA (diapositiva 17) ============ -->
+<section class="slide" data-sec="Independencia">
+  <div class="slide-inner center">
+    <span class="tag-k g">Bloque 2 · Capítulo 12</span>
+    <h2>La herramienta: la tabla de contingencia</h2>
+    <p class="lead">Es una tabla donde cruzamos las dos variables categóricas y anotamos cuántos casos hay en cada combinación.</p>
+    <p>Ejemplo: queremos saber si el <strong class="c1">género</strong> está relacionado con la <strong class="c1">preferencia por el café</strong>, en una muestra de 100 personas.</p>
+    <div class="tbl-wrap">
+      <table class="t-c">
+        <thead><tr><th></th><th>Le gusta el café</th><th>No le gusta el café</th><th>Total fila</th></tr></thead>
+        <tbody>
+          <tr><td>Hombres</td><td><strong>21</strong></td><td><strong>15</strong></td><td>36</td></tr>
+          <tr><td>Mujeres</td><td><strong>26</strong></td><td><strong>38</strong></td><td>64</td></tr>
+          <tr class="tot"><td>Total columna</td><td>47</td><td>53</td><td>100</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="hint">Fuente del ejemplo: Lifeder — "Chi-cuadrado (χ²): distribución, cómo se calcula, ejemplos".</p>
+  </div>
+</section>
+
+<!-- ============ 18. PASO 1 Y 2 (diapositiva 18) ============ -->
+<section class="slide" data-sec="Independencia">
+  <div class="slide-inner center">
+    <span class="tag-k g">Bloque 2 · Capítulo 12</span>
+    <h2>Paso 1 y 2 — Hipótesis y frecuencias esperadas</h2>
+    <div class="grid g2 mt">
+      <div class="card" style="align-self:center">
+        <span class="lab">Paso 1 · Hipótesis</span>
+        <p class="mb0" style="color:var(--ink)">H<sub>0</sub>: el género y la preferencia por el café son independientes.<br>H<sub>1</sub>: el gusto por el café está relacionado con el género.</p>
+      </div>
+      <div class="card">
+        <span class="lab">Paso 2 · Frecuencia esperada</span>
+        <div class="formula-scroll"><div class="formula mono"><span>fe</span><span class="op">=</span><span class="frac"><span>Total fila × Total columna</span><span>Total general (N)</span></span></div></div>
+      </div>
+    </div>
+    <div class="tbl-wrap mt-s">
+      <table class="t-c">
+        <thead><tr><th>Celda</th><th>Cálculo</th><th>fe</th></tr></thead>
+        <tbody>
+          <tr><td>Hombres · Sí</td><td>(36 × 47) / 100</td><td><strong>16.92</strong></td></tr>
+          <tr><td>Mujeres · Sí</td><td>(64 × 47) / 100</td><td><strong>30.08</strong></td></tr>
+          <tr><td>Hombres · No</td><td>(36 × 53) / 100</td><td><strong>19.08</strong></td></tr>
+          <tr><td>Mujeres · No</td><td>(64 × 53) / 100</td><td><strong>33.92</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 19. PASO 3 (diapositiva 19) ============ -->
+<section class="slide dense" data-sec="Independencia">
+  <div class="slide-inner center">
+    <span class="tag-k g">Bloque 2 · Capítulo 12</span>
+    <h2>Paso 3 — Calcular el estadístico χ²</h2>
+    <p>Aplicamos la misma fórmula de siempre, celda por celda, y sumamos:</p>
+    <div class="formula-scroll"><div class="formula sm"><i>χ</i><sup>2</sup><span class="op">=</span><span class="frac"><span>(21−16.92)<sup>2</sup></span><span>16.92</span></span><span class="op">+</span><span class="frac"><span>(26−30.08)<sup>2</sup></span><span>30.08</span></span><span class="op">+</span><span class="frac"><span>(15−19.08)<sup>2</sup></span><span>19.08</span></span><span class="op">+</span><span class="frac"><span>(38−33.92)<sup>2</sup></span><span>33.92</span></span></div></div>
+    <p style="color:var(--ink);font-size:clamp(15px,1.5vw,19px)">= 0.9838 + 0.5534 + 0.8725 + 0.4908 = <strong class="hl-num">2.9005</strong></p>
+    <div class="grid g-5-5">
+      <div class="callout" style="margin:0">
+        <span class="k">Lee este resultado</span>
+        <p class="mb0">2.9 es un número relativamente pequeño: quiere decir que lo observado (21, 26, 15, 38) no se aleja mucho de lo esperado (16.92, 30.08, 19.08, 33.92). Todavía nos falta compararlo contra el valor crítico para tomar la decisión final.</p>
+      </div>
+      <div class="card card-accent">
+        <h3>Regla de decisión con valor crítico</h3>
+        <div class="tbl-wrap mb0">
+          <table class="t-c t-compact t-wrap">
+            <thead><tr><th>Comparación</th><th>Decisión</th></tr></thead>
+            <tbody>
+              <tr><td>χ² &lt; χ²<sub>crítico</sub></td><td class="acc">No se rechaza H<sub>0</sub> (independientes)</td></tr>
+              <tr><td>χ² ≥ χ²<sub>crítico</sub></td><td class="rej">Se rechaza H<sub>0</sub> (sí hay relación)</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 20. PASO 4 Y 5 (diapositiva 20) ============ -->
+<section class="slide" data-sec="Independencia">
+  <div class="slide-inner center">
+    <span class="tag-k g">Bloque 2 · Capítulo 12</span>
+    <h2>Paso 4 y 5 — Grados de libertad, decisión y conclusión</h2>
+    <div class="grid g2 mt">
+      <div class="card">
+        <span class="lab">Paso 4 · Grados de libertad</span>
+        <div class="formula-scroll"><div class="formula mono">k = (f−1)(c−1) = (2−1)(2−1) = 1</div></div>
+        <p class="mb0">Buscando en la tabla de χ² con k=1 y α=0.05, obtenemos: <strong class="c1">χ²crítico = 3.841</strong></p>
+      </div>
+      <div class="card card-ok" style="align-self:center">
+        <span class="lab">Paso 5 · Decisión</span>
+        <p style="color:var(--ink)">χ² calculado = 2.9005<br>χ²crítico = 3.841</p>
+        <p class="mb0">Como 2.9005 &lt; 3.841 → <strong class="acc">no se rechaza H<sub>0</sub></strong>.</p>
+      </div>
+    </div>
+    <div class="callout">
+      <span class="k">Conclusión en palabras simples</span>
+      <p class="mb0">Con un nivel de significancia del 5%, <strong>la preferencia por el café no está relacionada con el género de la persona</strong>: las diferencias que vimos en la tabla se explican razonablemente por azar, no por una relación real entre ambas variables.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 21. ALBER'S (diapositiva 21) ============ -->
+<section class="slide" data-sec="Independencia">
+  <div class="slide-inner center">
+    <span class="tag-k g">Bloque 2 · Ejercicio para resolver en clase</span>
+    <h2>Ahora te toca a ti: la cervecería Alber's</h2>
+    <p>La empresa produce y distribuye tres tipos de cerveza: <strong class="c2">ligera, clara y oscura</strong>. Al analizar los segmentos de mercado de las tres bebidas, el grupo de investigación de mercados se preguntó si la inclinación de los consumidores por estos tipos de cerveza difería entre hombres y mujeres.</p>
+    <div class="grid g-5-5">
+      <div>
+        <p>Se usó una prueba de independencia para determinar si la preferencia por un tipo de cerveza (ligera, clara u oscura) era independiente del género del consumidor (hombre o mujer). Las hipótesis fueron las siguientes:</p>
+        <div class="callout">
+          <span class="k">Hipótesis del estudio</span>
+          <p class="mb0">H<sub>0</sub>: la preferencia por un tipo de cerveza es independiente del género del consumidor.<br>H<sub>1</sub>: la preferencia por un tipo de cerveza no es independiente del género del consumidor.</p>
+        </div>
+      </div>
+      <div style="align-self:center">
+        <div class="card">
+          <h3>¿Por qué importa?</h3>
+          <p><strong>Si las preferencias son independientes</strong> del género → una sola campaña publicitaria para todas las cervezas.</p>
+          <p class="mb0"><strong>Si las preferencias dependen</strong> del género → ajustar las promociones para distintos mercados meta.</p>
+        </div>
+      </div>
+    </div>
+    <p class="hint">Suponga que se toma una muestra aleatoria simple de 150 consumidores. Cada individuo de la muestra prueba los tres tipos de cerveza y después se le pide que indique cuál prefiere o cuál es su primera elección.</p>
+  </div>
+</section>
+
+<!-- ============ 22. TABLA DE CONTINGENCIA ALBER'S (diapositiva 22) ============ -->
+<section class="slide" data-sec="Independencia">
+  <div class="slide-inner center">
+    <span class="tag-k g">Bloque 2 · Ejercicio para resolver en clase</span>
+    <h2>La tabla de contingencia</h2>
+    <p class="lead">En la tabulación cruzada se presenta el resumen de las respuestas recabadas en el estudio (frecuencias observadas):</p>
+    <div class="tbl-wrap">
+      <table class="t-c">
+        <thead><tr><th></th><th>Ligera</th><th>Clara</th><th>Oscura</th><th>Total</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Hombre</strong></td><td><strong>20</strong></td><td><strong>40</strong></td><td><strong>20</strong></td><td>80</td></tr>
+          <tr><td><strong>Mujer</strong></td><td><strong>30</strong></td><td><strong>30</strong></td><td><strong>10</strong></td><td>70</td></tr>
+          <tr class="tot"><td>Total</td><td>50</td><td>70</td><td>30</td><td>150</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout">
+      <span class="k">En equipos, calculen</span>
+      <p class="mb0">1) Las frecuencias esperadas de cada celda. 2) El estadístico de prueba χ². 3) Los grados de libertad. 4) Comparen su χ² contra el valor crítico (α = 0.05) y concluyan si se rechaza o no H<sub>0</sub>. Usen los mismos pasos que vimos con el ejemplo del café.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 23. PASO 1 ALBER'S (diapositiva 23) ============ -->
+<section class="slide" data-sec="Independencia">
+  <div class="slide-inner center">
+    <span class="tag-k g">Bloque 2 · Capítulo 12 · Tabla 12.4</span>
+    <h2>Paso 1 — Calcular las frecuencias esperadas</h2>
+    <div class="grid g-5-5 mt">
+      <div>
+        <p>Bajo el supuesto de H<sub>0</sub> (independencia), la frecuencia esperada de cada celda se calcula así:</p>
+        <div class="formula-scroll"><div class="formula mono"><span>e<sub>ij</sub></span><span class="op">=</span><span class="frac"><span>(total de la fila i)(total de la columna j)</span><span>tamaño de la muestra</span></span></div></div>
+        <p class="mb0">Por ejemplo, para "Hombre · Clara": e<sub>12</sub> = (80)(70)/150 = <strong class="c2">37.33</strong>.</p>
+      </div>
+      <div style="align-self:center">
+        <div class="tbl-wrap">
+          <table class="t-c">
+            <thead><tr><th></th><th>Ligera</th><th>Clara</th><th>Oscura</th><th>Total</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Hombre</strong></td><td>26.67</td><td>37.33</td><td>16.00</td><td>80</td></tr>
+              <tr><td><strong>Mujer</strong></td><td>23.33</td><td>32.67</td><td>14.00</td><td>70</td></tr>
+              <tr class="tot"><td>Total</td><td>50.00</td><td>70.00</td><td>30.00</td><td>150</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 24. PASO 2 ALBER'S (diapositiva 24) ============ -->
+<section class="slide dense" data-sec="Independencia">
+  <div class="slide-inner center">
+    <span class="tag-k g">Bloque 2 · Capítulo 12 · Tabla 12.5</span>
+    <h2>Paso 2 — Calcular el estadístico χ²</h2>
+    <div class="formula"><i>χ</i><sup>2</sup><span class="op">=</span><span class="op">ΣΣ</span><span class="frac"><span>(<i>f</i><sub>ij</sub> − <i>e</i><sub>ij</sub>)<sup>2</sup></span><span><i>e</i><sub>ij</sub></span></span></div>
+    <div class="tbl-wrap">
+      <table class="t-c t-compact">
+        <thead><tr><th>Género</th><th>Cerveza</th><th class="mx">f<sub>ij</sub></th><th class="mx">e<sub>ij</sub></th><th class="mx">f<sub>ij</sub>−e<sub>ij</sub></th><th class="mx">(f<sub>ij</sub>−e<sub>ij</sub>)²/e<sub>ij</sub></th></tr></thead>
+        <tbody>
+          <tr><td>Hombre</td><td>Ligera</td><td>20</td><td>26.67</td><td>−6.67</td><td>1.67</td></tr>
+          <tr><td>Hombre</td><td>Clara</td><td>40</td><td>37.33</td><td>2.67</td><td>0.19</td></tr>
+          <tr><td>Hombre</td><td>Oscura</td><td>20</td><td>16.00</td><td>4.00</td><td>1.00</td></tr>
+          <tr><td>Mujer</td><td>Ligera</td><td>30</td><td>23.33</td><td>6.67</td><td>1.90</td></tr>
+          <tr><td>Mujer</td><td>Clara</td><td>30</td><td>32.67</td><td>−2.67</td><td>0.22</td></tr>
+          <tr><td>Mujer</td><td>Oscura</td><td>10</td><td>14.00</td><td>−4.00</td><td>1.14</td></tr>
+          <tr class="tot"><td colspan="5">Total</td><td>χ² = 6.12</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 25. PASO 3 ALBER'S (diapositiva 25) ============ -->
+<section class="slide dense" data-sec="Independencia">
+  <div class="slide-inner center">
+    <span class="tag-k g">Bloque 2 · Capítulo 12</span>
+    <h2>Paso 3 — Grados de libertad y comparación</h2>
+    <div class="grid g2 mt">
+      <div class="card">
+        <h3>Grados de libertad</h3>
+        <div class="formula-scroll"><div class="formula mono">gl = (filas−1)(columnas−1) = (2−1)(3−1) = 2</div></div>
+        <p class="mb0">Como con la tabla de contingencia, la prueba de independencia siempre es de <strong>cola superior</strong>.</p>
+      </div>
+      <div class="card card-ok">
+        <h3>Comparación con la tabla</h3>
+        <div class="tbl-wrap">
+          <table class="t-c t-compact">
+            <thead><tr><th>Área cola sup.</th><th>0.05</th><th>0.025</th></tr></thead>
+            <tbody><tr><td>Valor χ² (2 gl)</td><td>5.991</td><td>7.378</td></tr></tbody>
+          </table>
+        </div>
+        <p class="mb0">χ² = 6.12 cae entre 5.991 y 7.378 → valor-p entre 0.025 y 0.05. El valor exacto (Excel) es <strong class="c2">0.0469</strong>.</p>
+      </div>
+    </div>
+    <div class="card card-accent mt-s">
+      <h3>Regla de decisión con valor p</h3>
+      <div class="tbl-wrap mb0">
+        <table class="t-c t-compact">
+          <thead><tr><th>Sig. (p)</th><th>Decisión</th></tr></thead>
+          <tbody>
+            <tr><td>p ≤ 0.05</td><td class="rej">Rechazar H<sub>0</sub> (sí hay relación)</td></tr>
+            <tr><td>p &gt; 0.05</td><td class="acc">No rechazar H<sub>0</sub> (independientes)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 26. PASO 4 ALBER'S (diapositiva 26) ============ -->
+<section class="slide" data-sec="Independencia">
+  <div class="slide-inner center">
+    <span class="tag-k g">Bloque 2 · Capítulo 12 · Figura 12.1</span>
+    <h2>Paso 4 — Decisión y conclusión de negocio</h2>
+    <div class="grid g-5-5 mt">
+      <div>
+        <p style="color:var(--ink)">Como el valor-p = 0.0469 ≤ α = 0.05, <strong class="acc">se rechaza H<sub>0</sub></strong>.</p>
+        <div class="callout">
+          <span class="k">Conclusión</span>
+          <p class="mb0">La preferencia por un tipo de cerveza <strong>no es independiente</strong> del género del consumidor. Alber's Brewery debería <strong>ajustar sus promociones</strong> a diferentes mercados meta, en lugar de usar una sola campaña para todos.</p>
+        </div>
+        <p class="mb0">Observando las tablas: los hombres prefieren la clara y la oscura más de lo esperado; las mujeres prefieren la ligera más de lo esperado.</p>
+      </div>
+      <div style="align-self:center">
+<pre class="raw">Expected counts printed below observed
+
+      Light  Regular  Dark  Total
+1        20       40    20     80
+      26.67    37.33 16.00
+
+2        30       30    10     70
+      23.33    32.67 14.00
+
+Total    50       70    30    150
+
+Chi-Sq = 6.122, DF = 2, P-Value = 0.047</pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 27. LOS 5 PASOS (diapositiva 27) ============ -->
+<section class="slide" data-sec="Independencia">
+  <div class="slide-inner center">
+    <span class="tag-k g">Bloque 2 · Capítulo 12 · Resumen</span>
+    <h2>Prueba de independencia: los 5 pasos</h2>
+    <ol class="steps mt">
+      <li><strong>Establecer las hipótesis:</strong> H<sub>0</sub> = las variables son independientes; H<sub>a</sub> = no lo son.</li>
+      <li><strong>Tomar una muestra aleatoria</strong> y registrar las frecuencias observadas en cada celda de la tabla de contingencia.</li>
+      <li><strong>Calcular la frecuencia esperada de cada celda:</strong> e<sub>ij</sub> = (total fila)(total columna) / tamaño de muestra.</li>
+      <li><strong>Calcular el estadístico de prueba:</strong> χ² = ΣΣ (f<sub>ij</sub>−e<sub>ij</sub>)² / e<sub>ij</sub>.</li>
+      <li><strong>Aplicar la regla de rechazo:</strong> por valor-p (rechazar si valor-p ≤ α), con (filas−1)(columnas−1) grados de libertad.</li>
+    </ol>
+    <p class="hint">Nota importante del libro: el procedimiento requiere una frecuencia esperada de al menos 5 en cada categoría; si alguna es menor, conviene combinar categorías adyacentes.</p>
+  </div>
+</section>
+
+<!-- ============ 28. ANTES DE ABRIR SPSS (diapositiva 28) ============ -->
+<section class="slide" data-sec="Práctica SPSS">
+  <div class="slide-inner center">
+    <span class="tag-k r">Bloque 3 · Práctica</span>
+    <h2>Antes de abrir SPSS: define tu pregunta</h2>
+    <ol class="steps mt">
+      <li><strong>Identifica las dos variables categóricas</strong> que quieres cruzar (por ejemplo: tipo de producto y fabricante, o tipo de producto y estante).</li>
+      <li><strong>Redacta tus hipótesis:</strong> H<sub>0</sub> = las dos variables son independientes; H<sub>1</sub> = las dos variables están relacionadas.</li>
+      <li><strong>Elige tu nivel de significancia</strong>, normalmente α = 0.05.</li>
+      <li><strong>Verifica el tamaño de tus grupos:</strong> si alguna categoría tiene muy pocos casos, considera combinarla con otra para evitar frecuencias esperadas menores a 5.</li>
+    </ol>
+    <div class="callout">
+      <span class="k">Por qué importa este paso</span>
+      <p class="mb0">SPSS puede calcular el número por ti, pero <strong>no puede decidir qué pregunta responder</strong>. Definir bien la pregunta y las hipótesis antes de tocar el software es lo que le da sentido al resultado que vas a obtener.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 29. CARGAR Y PREPARAR (diapositiva 29) ============ -->
+<section class="slide" data-sec="Práctica SPSS">
+  <div class="slide-inner center">
+    <span class="tag-k r">Bloque 3 · Práctica</span>
+    <h2>Pasos en SPSS: cargar y preparar los datos</h2>
+    <ol class="steps mt">
+      <li><strong>Abre el archivo</strong> en SPSS: <span class="path">Archivo → Abrir → Datos</span>, y selecciona tu archivo .csv o .sav con el dataset.</li>
+      <li><strong>Revisa el "Vista de variables"</strong> (pestaña inferior izquierda): confirma que tus dos variables categóricas estén definidas como tipo <strong>Nominal</strong> u <strong>Ordinal</strong>, no como "Escala".</li>
+      <li><strong>Asigna etiquetas de valor</strong> si tus categorías están codificadas con números (por ejemplo, 1 = "frío", 2 = "caliente"), para que las tablas de salida sean legibles.</li>
+      <li><strong>Revisa datos faltantes</strong>: si alguna fila tiene valores vacíos en las variables de interés, decide si los excluyes o los recodificas antes de continuar.</li>
+    </ol>
+  </div>
+</section>
+
+<!-- ============ 30. CORRER LA PRUEBA (diapositiva 30) ============ -->
+<section class="slide" data-sec="Práctica SPSS">
+  <div class="slide-inner center">
+    <span class="tag-k r">Bloque 3 · Práctica</span>
+    <h2>Pasos en SPSS: correr la prueba chi-cuadrado</h2>
+    <ol class="steps mt">
+      <li><strong>Ve al menú:</strong> <span class="path">Analizar → Estadísticos descriptivos → Tablas cruzadas</span> (Crosstabs).</li>
+      <li><strong>Coloca una variable en "Filas"</strong> y la otra en "Columnas" (por ejemplo: tipo de producto en filas, fabricante o estante en columnas).</li>
+      <li><strong>Haz clic en el botón "Estadísticos"</strong> y marca la casilla <strong>Chi-cuadrado</strong>. Puedes aceptar aquí mismo.</li>
+      <li><strong>Haz clic en el botón "Casillas"</strong> y marca <strong>Observadas</strong> y <strong>Esperadas</strong> (para ver ambos conteos en la tabla), además de porcentajes si te resultan útiles.</li>
+      <li><strong>Presiona "Continuar" y luego "Aceptar"</strong> para ejecutar el análisis. SPSS generará una tabla de contingencia y una tabla de "Pruebas de chi-cuadrado".</li>
+    </ol>
+  </div>
+</section>
+
+<!-- ============ 31. CÓMO LEER LA SALIDA (diapositiva 31) ============ -->
+<section class="slide" data-sec="Práctica SPSS">
+  <div class="slide-inner center">
+    <span class="tag-k r">Bloque 3 · Práctica</span>
+    <h2>Cómo leer la salida de SPSS</h2>
+    <div class="grid g-5-5 mt">
+      <div>
+        <p>En la tabla titulada <strong>"Pruebas de chi-cuadrado"</strong>, fíjate en la fila <strong>"Chi-cuadrado de Pearson"</strong> y revisa tres columnas:</p>
+        <ol class="steps mb0">
+          <li><strong>Valor</strong> — es tu estadístico χ² calculado.</li>
+          <li><strong>gl</strong> — los grados de libertad, que SPSS calcula automáticamente como (filas−1)(columnas−1).</li>
+          <li><strong>Sig. asintótica (bilateral)</strong> — este es el <span class="term">valor p</span>. Si es menor a tu α (por ejemplo, menor a 0.05), rechazas H<sub>0</sub>: hay evidencia de relación entre las variables.</li>
+        </ol>
+      </div>
+      <div style="align-self:center">
+        <div class="card card-accent">
+          <h3>Regla rápida con el valor p</h3>
+          <div class="tbl-wrap">
+            <table class="t-c t-compact">
+              <thead><tr><th>Sig. (p)</th><th>Decisión</th></tr></thead>
+              <tbody>
+                <tr><td>p ≤ 0.05</td><td class="rej">Rechazar H<sub>0</sub> (sí hay relación)</td></tr>
+                <tr><td>p &gt; 0.05</td><td class="acc">No rechazar H<sub>0</sub> (independientes)</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="mb0">Usar el valor p es equivalente a comparar χ² contra χ²crítico — SPSS ya hace esa comparación por ti.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 32. ERRORES COMUNES (diapositiva 32) ============ -->
+<section class="slide" data-sec="Práctica SPSS">
+  <div class="slide-inner center">
+    <span class="tag-k r">Bloque 3 · Práctica</span>
+    <h2>Errores comunes al hacerlo en SPSS</h2>
+    <div class="grid g3 mt">
+      <div class="card card-warn">
+        <span class="lab">Error 1</span>
+        <h3>Variables mal definidas</h3>
+        <p class="mb0">Tratar una variable categórica como "Escala" hace que Tablas cruzadas no la agrupe correctamente.</p>
+      </div>
+      <div class="card card-warn">
+        <span class="lab">Error 2</span>
+        <h3>Casillas con fe &lt; 5</h3>
+        <p class="mb0">Si SPSS avisa que un porcentaje alto de casillas tiene frecuencia esperada menor a 5, la prueba pierde fiabilidad: agrupa categorías.</p>
+      </div>
+      <div class="card card-warn">
+        <span class="lab">Error 3</span>
+        <h3>Confundir χ² con el valor p</h3>
+        <p class="mb0">El valor de χ² por sí solo no basta: siempre debes compararlo contra el crítico o revisar directamente la significancia (Sig.).</p>
+      </div>
+    </div>
+    <div class="callout">
+      <span class="k">Consejo final</span>
+      <p class="mb0">Antes de reportar un resultado, revisa siempre la nota al pie de la tabla de SPSS: ahí indica cuántas casillas (si las hay) tienen una frecuencia esperada inferior a 5, lo cual te avisa si conviene ajustar tu tabla de contingencia.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 33. NUEVA YORK (diapositiva 33) ============ -->
+<section class="slide" data-sec="Ejercicio de práctica">
+  <div class="slide-inner center">
+    <span class="tag-k r">Bloque 3 · Ejercicio de práctica</span>
+    <h2>Un caso real: la reforma en Nueva York</h2>
+    <div class="grid g-6-4 mt">
+      <div>
+        <p>En un estudio realizado por <strong class="rej">Zogby International</strong> para el <span class="term">Democrat and Chronicle</span>, se entrevistó a más de 700 habitantes del estado de Nueva York para determinar si su gobierno estatal funcionaba bien. Se les preguntó sobre reducciones en la remuneración de los legisladores, restricciones al cabildeo, límites de mandato, y si los ciudadanos podían incluir sus temas en las consultas ciudadanas.</p>
+        <p class="mb0">En un estudio subsecuente se entrevistó a <strong class="rej">100 individuos</strong> de la región oeste de Nueva York. De cada uno se registró su <strong class="rej">afiliación partidista</strong> (demócrata, independiente o republicano) y sus respuestas Sí/No a tres preguntas: 1) reducir el sueldo a los legisladores, 2) más restricciones al cabildeo, y 3) límites al número de años del mandato. Las respuestas se codificaron con 1 = Sí y 2 = No.</p>
+      </div>
+      <div></div>
+    </div>
+    <div class="callout">
+      <span class="k">Archivo de datos</span>
+      <p class="mb0">La base completa está disponible en el archivo descargable <strong>NYReform.xlsx</strong> (100 registros, listo para abrir en SPSS o Excel).</p>
+    </div>
+    <p class="hint">Pregunta a resolver: usando α = 0.05, ¿existe una asociación entre la afiliación partidista y la opinión sobre reducir el sueldo a los legisladores?</p>
+  </div>
+</section>
+
+<!-- ============ 34. ANTES DE ABRIR SPSS (diapositiva 34) ============ -->
+<section class="slide" data-sec="Ejercicio de práctica">
+  <div class="slide-inner center">
+    <span class="tag-k r">Bloque 3 · Ejercicio de práctica</span>
+    <h2>Antes de abrir SPSS</h2>
+    <ol class="steps mt">
+      <li><strong>Identificar las dos variables categóricas</strong> que se van a cruzar: afiliación y reducir sueldo.</li>
+      <li><strong>Redactar las hipótesis:</strong> H<sub>0</sub> = afiliación y reducir el sueldo son independientes; H<sub>a</sub> = afiliación y reducir el sueldo están relacionadas.</li>
+      <li><strong>Elegir el nivel de significancia:</strong> α = 0.05.</li>
+      <li><strong>Verificar el tamaño de los grupos:</strong> que no existan categorías con frecuencias esperadas menores a 5.</li>
+    </ol>
+  </div>
+</section>
+
+<!-- ============ 35. PASOS PARA ESTE CASO (diapositiva 35) ============ -->
+<section class="slide" data-sec="Ejercicio de práctica">
+  <div class="slide-inner center">
+    <span class="tag-k r">Bloque 3 · Ejercicio de práctica</span>
+    <h2>Pasos en SPSS para este caso</h2>
+    <ol class="steps mt">
+      <li><strong>Abre NYReform.xlsx</strong> en SPSS: <span class="path">Archivo → Abrir → Datos</span>, y selecciona el archivo.</li>
+      <li><strong>Ve al menú:</strong> <span class="path">Analizar → Estadísticos descriptivos → Tablas cruzadas</span>.</li>
+      <li><strong>Coloca "Afiliación" en Filas</strong> y <strong>"ReducirSueldo" en Columnas</strong>.</li>
+      <li><strong>En "Estadísticos"</strong> marca <strong>Chi-cuadrado</strong>; en <strong>"Casillas"</strong> marca <strong>Observadas</strong> y <strong>Esperadas</strong>.</li>
+      <li><strong>Presiona "Continuar" y luego "Aceptar"</strong> para obtener la tabla de contingencia y la prueba de chi-cuadrado.</li>
+    </ol>
+  </div>
+</section>
+
+<!-- ============ 36–43. CAPTURAS SPSS 01–08 (diapositivas 36–43) ============ -->
+<section class="slide dense" data-sec="Capturas SPSS">
+  <div class="slide-inner">
+    <span class="tag-k r">Bloque 3 · Captura SPSS 01/17</span>
+    <h2>Archivo → Importar datos → Excel…</h2>
+    <figure class="fig full"><img src="assets/d36_importar_excel.jpg" alt="Captura de SPSS: menú Archivo, Importar datos, Excel" loading="lazy"></figure>
+  </div>
+</section>
+
+<section class="slide dense" data-sec="Capturas SPSS">
+  <div class="slide-inner">
+    <span class="tag-k r">Bloque 3 · Captura SPSS 02/17</span>
+    <h2>Seleccionar el archivo NYReform.xlsx</h2>
+    <figure class="fig full"><img src="assets/d37_abrir_nyreform.jpg" alt="Captura de SPSS: cuadro Abrir datos con NYReform.xlsx seleccionado" loading="lazy"></figure>
+  </div>
+</section>
+
+<section class="slide dense" data-sec="Capturas SPSS">
+  <div class="slide-inner">
+    <span class="tag-k r">Bloque 3 · Captura SPSS 03/17</span>
+    <h2>Opciones de importación del archivo Excel</h2>
+    <figure class="fig full"><img src="assets/d38_leer_excel.jpg" alt="Captura de SPSS: cuadro Leer archivo Excel con vista previa de Observation, Party, PayCut y Lobbyists" loading="lazy"></figure>
+  </div>
+</section>
+
+<section class="slide dense" data-sec="Capturas SPSS">
+  <div class="slide-inner">
+    <span class="tag-k r">Bloque 3 · Captura SPSS 04/17</span>
+    <h2>Los datos ya importados en la Vista de datos de SPSS</h2>
+    <figure class="fig full"><img src="assets/d39_vista_variables.jpg" alt="Captura de SPSS: Vista de variables con el cuadro Etiquetas de valor (1 = SI, 2 = NO)" loading="lazy"></figure>
+  </div>
+</section>
+
+<section class="slide dense" data-sec="Capturas SPSS">
+  <div class="slide-inner">
+    <span class="tag-k r">Bloque 3 · Captura SPSS 05/17</span>
+    <h2>Analizar → Estadísticos descriptivos → Tablas cruzadas</h2>
+    <figure class="fig full"><img src="assets/d40_menu_tablas_cruzadas.jpg" alt="Captura de SPSS: menú Analizar, Estadísticos descriptivos, Tablas cruzadas" loading="lazy"></figure>
+  </div>
+</section>
+
+<section class="slide dense" data-sec="Capturas SPSS">
+  <div class="slide-inner">
+    <span class="tag-k r">Bloque 3 · Captura SPSS 06/17</span>
+    <h2>Cuadro de diálogo Tablas cruzadas: Party en Filas, Pay Cut en Columnas</h2>
+    <figure class="fig full"><img src="assets/d41_dialogo_tablas_cruzadas.jpg" alt="Captura de SPSS: cuadro Tablas cruzadas con Party en Filas y Pay Cut en Columnas" loading="lazy"></figure>
+  </div>
+</section>
+
+<section class="slide dense" data-sec="Capturas SPSS">
+  <div class="slide-inner">
+    <span class="tag-k r">Bloque 3 · Captura SPSS 07/17</span>
+    <h2>Botón Casillas: se marcan Observadas y Esperadas</h2>
+    <figure class="fig full"><img src="assets/d42_boton_casillas.jpg" alt="Captura de SPSS: Tablas cruzadas, Mostrar en las casillas, con Observado, Esperado y Fila marcados" loading="lazy"></figure>
+  </div>
+</section>
+
+<section class="slide dense" data-sec="Capturas SPSS">
+  <div class="slide-inner">
+    <span class="tag-k r">Bloque 3 · Captura SPSS 08/17</span>
+    <h2>Botón Estadísticos: se marca la casilla Chi-cuadrado</h2>
+    <figure class="fig full"><img src="assets/d43_boton_estadisticos.jpg" alt="Captura de SPSS: Tablas cruzadas, Estadísticos, con Chi-cuadrado marcado" loading="lazy"></figure>
+  </div>
+</section>
+
+<!-- ============ 44. TABLA CRUZADA PARTY × PAY CUT (diapositiva 44) ============ -->
+<section class="slide dense" data-sec="Capturas SPSS">
+  <div class="slide-inner">
+    <span class="tag-k r">Bloque 3 · Captura SPSS 09/17</span>
+    <h2>Resultado — Tabla cruzada Party × Pay Cut</h2>
+    <h3>Tablas cruzadas</h3>
+    <div class="tbl-wrap">
+      <table class="t-compact t-spss">
+        <caption>Resumen de procesamiento de casos</caption>
+        <thead>
+          <tr><th rowspan="3"></th><th colspan="6" style="text-align:center">Casos</th></tr>
+          <tr><th colspan="2" style="text-align:center">Válido</th><th colspan="2" style="text-align:center">Perdido</th><th colspan="2" style="text-align:center">Total</th></tr>
+          <tr><th>N</th><th>Porcentaje</th><th>N</th><th>Porcentaje</th><th>N</th><th>Porcentaje</th></tr>
+        </thead>
+        <tbody><tr><td>Party * Pay Cut?</td><td>100</td><td>100.0%</td><td>0</td><td>0.0%</td><td>100</td><td>100.0%</td></tr></tbody>
+      </table>
+    </div>
+    <div class="grid g-4-6">
+      <div class="tbl-wrap">
+        <table class="t-compact t-spss s2">
+          <caption>Tabla cruzada Party*Pay Cut? · Recuento</caption>
+          <thead><tr><th colspan="2"></th><th>SI</th><th>NO</th><th>Total</th></tr></thead>
+          <tbody>
+            <tr><td>Party</td><td>Democrat</td><td>22</td><td>14</td><td>36</td></tr>
+            <tr><td></td><td>Independent</td><td>10</td><td>9</td><td>19</td></tr>
+            <tr><td></td><td>Republican</td><td>39</td><td>6</td><td>45</td></tr>
+            <tr class="tot"><td>Total</td><td></td><td>71</td><td>29</td><td>100</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="tbl-wrap">
+        <table class="t-compact t-spss s3">
+          <caption>Tabla cruzada Party*Pay Cut? (columnas: Pay Cut?)</caption>
+          <thead><tr><th colspan="3"></th><th>SI</th><th>NO</th><th>Total</th></tr></thead>
+          <tbody>
+            <tr><td>Party</td><td>Democrat</td><td>Recuento</td><td>22</td><td>14</td><td>36</td></tr>
+            <tr><td></td><td></td><td>Recuento esperado</td><td>25.6</td><td>10.4</td><td>36.0</td></tr>
+            <tr><td></td><td></td><td>% dentro de Party</td><td>61.1%</td><td>38.9%</td><td>100.0%</td></tr>
+            <tr><td></td><td>Independent</td><td>Recuento</td><td>10</td><td>9</td><td>19</td></tr>
+            <tr><td></td><td></td><td>Recuento esperado</td><td>13.5</td><td>5.5</td><td>19.0</td></tr>
+            <tr><td></td><td></td><td>% dentro de Party</td><td>52.6%</td><td>47.4%</td><td>100.0%</td></tr>
+            <tr><td></td><td>Republican</td><td>Recuento</td><td>39</td><td>6</td><td>45</td></tr>
+            <tr><td></td><td></td><td>Recuento esperado</td><td>32.0</td><td>13.1</td><td>45.0</td></tr>
+            <tr><td></td><td></td><td>% dentro de Party</td><td>86.7%</td><td>13.3%</td><td>100.0%</td></tr>
+            <tr><td>Total</td><td></td><td>Recuento</td><td>71</td><td>29</td><td>100</td></tr>
+            <tr><td></td><td></td><td>Recuento esperado</td><td>71.0</td><td>29.0</td><td>100.0</td></tr>
+            <tr><td></td><td></td><td>% dentro de Party</td><td>71.0%</td><td>29.0%</td><td>100.0%</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 45. CHI-CUADRADO PAY CUT (diapositiva 45) ============ -->
+<section class="slide dense" data-sec="Capturas SPSS">
+  <div class="slide-inner">
+    <span class="tag-k r">Bloque 3 · Captura SPSS 10/17</span>
+    <h2>Resultado — Prueba de chi-cuadrado y gráfico de barras (Pay Cut)</h2>
+    <div class="grid g-5-5 mt">
+      <div class="tbl-wrap">
+        <table class="t-compact t-spss">
+          <caption>Pruebas de chi-cuadrado · a. 0 casillas (0.0%) han esperado un recuento menor que 5. El recuento mínimo esperado es 5.51.</caption>
+          <thead><tr><th></th><th>Valor</th><th>df</th><th>Significación asintótica (bilateral)</th></tr></thead>
+          <tbody>
+            <tr><td>Chi-cuadrado de Pearson</td><td>10.187<sup>a</sup></td><td>2</td><td>.006</td></tr>
+            <tr><td>Razón de verosimilitud</td><td>10.689</td><td>2</td><td>.005</td></tr>
+            <tr><td>N de casos válidos</td><td>100</td><td></td><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <figure class="fig"><img src="assets/d45_barras_paycut.jpg" alt="Gráfico de barras de SPSS: recuento por Party y Pay Cut? (Democrat 22 y 14; Independent 10 y 9; Republican 39 y 6)" loading="lazy"></figure>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 46. CONCLUSIÓN PAY CUT (diapositiva 46) ============ -->
+<section class="slide" data-sec="Capturas SPSS">
+  <div class="slide-inner center">
+    <span class="tag-k r">Bloque 3 · Captura SPSS 11/17</span>
+    <h2>Conclusión de SPSS para la pregunta de reducir el sueldo</h2>
+    <div class="card mt" style="max-width:60ch">
+      <h3>Conclusión:</h3>
+      <p>Como (p=0.006&lt;0.05), se <strong>rechaza la hipótesis nula de independencia</strong>.</p>
+      <p class="mb0">Por lo tanto, se concluye que existe una asociación estadísticamente significativa entre las dos variables analizadas; es decir, no son independientes.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 47. TABLA CRUZADA PARTY × LOBBYISTS (diapositiva 47) ============ -->
+<section class="slide dense" data-sec="Capturas SPSS">
+  <div class="slide-inner">
+    <span class="tag-k r">Bloque 3 · Captura SPSS 12/17</span>
+    <h2>Resultado — Tabla cruzada Party × Lobbyists</h2>
+    <h3>Tablas cruzadas</h3>
+    <div class="tbl-wrap">
+      <table class="t-compact t-spss">
+        <caption>Resumen de procesamiento de casos</caption>
+        <thead>
+          <tr><th rowspan="3"></th><th colspan="6" style="text-align:center">Casos</th></tr>
+          <tr><th colspan="2" style="text-align:center">Válido</th><th colspan="2" style="text-align:center">Perdido</th><th colspan="2" style="text-align:center">Total</th></tr>
+          <tr><th>N</th><th>Porcentaje</th><th>N</th><th>Porcentaje</th><th>N</th><th>Porcentaje</th></tr>
+        </thead>
+        <tbody><tr><td>Party * Lobbyists?</td><td>100</td><td>100.0%</td><td>0</td><td>0.0%</td><td>100</td><td>100.0%</td></tr></tbody>
+      </table>
+    </div>
+    <div class="grid g-4-6">
+      <div class="tbl-wrap">
+        <table class="t-compact t-spss s2">
+          <caption>Tabla cruzada Party*Lobbyists? · Recuento</caption>
+          <thead><tr><th colspan="2"></th><th>SI</th><th>NO</th><th>Total</th></tr></thead>
+          <tbody>
+            <tr><td>Party</td><td>Democrat</td><td>21</td><td>15</td><td>36</td></tr>
+            <tr><td></td><td>Independent</td><td>15</td><td>4</td><td>19</td></tr>
+            <tr><td></td><td>Republican</td><td>34</td><td>11</td><td>45</td></tr>
+            <tr class="tot"><td>Total</td><td></td><td>70</td><td>30</td><td>100</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="tbl-wrap">
+        <table class="t-compact t-spss s3">
+          <caption>Tabla cruzada Party*Lobbyists? (columnas: Lobbyists?)</caption>
+          <thead><tr><th colspan="3"></th><th>SI</th><th>NO</th><th>Total</th></tr></thead>
+          <tbody>
+            <tr><td>Party</td><td>Democrat</td><td>Recuento</td><td>21</td><td>15</td><td>36</td></tr>
+            <tr><td></td><td></td><td>Recuento esperado</td><td>25.2</td><td>10.8</td><td>36.0</td></tr>
+            <tr><td></td><td></td><td>% dentro de Party</td><td>58.3%</td><td>41.7%</td><td>100.0%</td></tr>
+            <tr><td></td><td>Independent</td><td>Recuento</td><td>15</td><td>4</td><td>19</td></tr>
+            <tr><td></td><td></td><td>Recuento esperado</td><td>13.3</td><td>5.7</td><td>19.0</td></tr>
+            <tr><td></td><td></td><td>% dentro de Party</td><td>78.9%</td><td>21.1%</td><td>100.0%</td></tr>
+            <tr><td></td><td>Republican</td><td>Recuento</td><td>34</td><td>11</td><td>45</td></tr>
+            <tr><td></td><td></td><td>Recuento esperado</td><td>31.5</td><td>13.5</td><td>45.0</td></tr>
+            <tr><td></td><td></td><td>% dentro de Party</td><td>75.6%</td><td>24.4%</td><td>100.0%</td></tr>
+            <tr><td>Total</td><td></td><td>Recuento</td><td>70</td><td>30</td><td>100</td></tr>
+            <tr><td></td><td></td><td>Recuento esperado</td><td>70.0</td><td>30.0</td><td>100.0</td></tr>
+            <tr><td></td><td></td><td>% dentro de Party</td><td>70.0%</td><td>30.0%</td><td>100.0%</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 48. CHI-CUADRADO LOBBYISTS (diapositiva 48) ============ -->
+<section class="slide dense" data-sec="Capturas SPSS">
+  <div class="slide-inner">
+    <span class="tag-k r">Bloque 3 · Captura SPSS 13/17</span>
+    <h2>Resultado — Prueba de chi-cuadrado y gráfico de barras (Lobbyists)</h2>
+    <div class="grid g-5-5 mt">
+      <div class="tbl-wrap">
+        <table class="t-compact t-spss">
+          <caption>Pruebas de chi-cuadrado · a. 0 casillas (0.0%) han esperado un recuento menor que 5. El recuento mínimo esperado es 5.70.</caption>
+          <thead><tr><th></th><th>Valor</th><th>df</th><th>Significación asintótica (bilateral)</th></tr></thead>
+          <tbody>
+            <tr><td>Chi-cuadrado de Pearson</td><td>3.719<sup>a</sup></td><td>2</td><td>.156</td></tr>
+            <tr><td>Razón de verosimilitud</td><td>3.661</td><td>2</td><td>.160</td></tr>
+            <tr><td>N de casos válidos</td><td>100</td><td></td><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <figure class="fig"><img src="assets/d48_barras_lobbyists.jpg" alt="Gráfico de barras de SPSS: recuento por Party y Lobbyists? (Democrat 21 y 15; Independent 15 y 4; Republican 34 y 11)" loading="lazy"></figure>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 49. CONCLUSIÓN LOBBYISTS (diapositiva 49) ============ -->
+<section class="slide" data-sec="Capturas SPSS">
+  <div class="slide-inner center">
+    <span class="tag-k r">Bloque 3 · Captura SPSS 14/17</span>
+    <h2>Conclusión de SPSS para la pregunta de restricciones al cabildeo</h2>
+    <div class="card mt" style="max-width:60ch">
+      <h3>Conclusión:</h3>
+      <p>Como (p=0.156&gt;0.05), <strong>no se rechaza la hipótesis nula de independencia</strong>.</p>
+      <p class="mb0">Por lo tanto, no existe evidencia estadística suficiente para afirmar que las dos variables analizadas estén asociadas.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 50. TABLA CRUZADA PARTY × TERM LIMITS (diapositiva 50) ============ -->
+<section class="slide dense" data-sec="Capturas SPSS">
+  <div class="slide-inner">
+    <span class="tag-k r">Bloque 3 · Captura SPSS 15/17</span>
+    <h2>Resultado — Tabla cruzada Party × Term Limits</h2>
+    <h3>Tablas cruzadas</h3>
+    <div class="tbl-wrap">
+      <table class="t-compact t-spss">
+        <caption>Resumen de procesamiento de casos</caption>
+        <thead>
+          <tr><th rowspan="3"></th><th colspan="6" style="text-align:center">Casos</th></tr>
+          <tr><th colspan="2" style="text-align:center">Válido</th><th colspan="2" style="text-align:center">Perdido</th><th colspan="2" style="text-align:center">Total</th></tr>
+          <tr><th>N</th><th>Porcentaje</th><th>N</th><th>Porcentaje</th><th>N</th><th>Porcentaje</th></tr>
+        </thead>
+        <tbody><tr><td>Party * Term Limits?</td><td>100</td><td>100.0%</td><td>0</td><td>0.0%</td><td>100</td><td>100.0%</td></tr></tbody>
+      </table>
+    </div>
+    <div class="grid g-4-6">
+      <div class="tbl-wrap">
+        <table class="t-compact t-spss s2">
+          <caption>Tabla cruzada Party*Term Limits? · Recuento</caption>
+          <thead><tr><th colspan="2"></th><th>SI</th><th>NO</th><th>Total</th></tr></thead>
+          <tbody>
+            <tr><td>Party</td><td>Democrat</td><td>17</td><td>19</td><td>36</td></tr>
+            <tr><td></td><td>Independent</td><td>10</td><td>9</td><td>19</td></tr>
+            <tr><td></td><td>Republican</td><td>32</td><td>13</td><td>45</td></tr>
+            <tr class="tot"><td>Total</td><td></td><td>59</td><td>41</td><td>100</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="tbl-wrap">
+        <table class="t-compact t-spss s3">
+          <caption>Tabla cruzada Party*Term Limits? (columnas: Term Limits?)</caption>
+          <thead><tr><th colspan="3"></th><th>SI</th><th>NO</th><th>Total</th></tr></thead>
+          <tbody>
+            <tr><td>Party</td><td>Democrat</td><td>Recuento</td><td>17</td><td>19</td><td>36</td></tr>
+            <tr><td></td><td></td><td>Recuento esperado</td><td>21.2</td><td>14.8</td><td>36.0</td></tr>
+            <tr><td></td><td></td><td>% dentro de Party</td><td>47.2%</td><td>52.8%</td><td>100.0%</td></tr>
+            <tr><td></td><td>Independent</td><td>Recuento</td><td>10</td><td>9</td><td>19</td></tr>
+            <tr><td></td><td></td><td>Recuento esperado</td><td>11.2</td><td>7.8</td><td>19.0</td></tr>
+            <tr><td></td><td></td><td>% dentro de Party</td><td>52.6%</td><td>47.4%</td><td>100.0%</td></tr>
+            <tr><td></td><td>Republican</td><td>Recuento</td><td>32</td><td>13</td><td>45</td></tr>
+            <tr><td></td><td></td><td>Recuento esperado</td><td>26.6</td><td>18.5</td><td>45.0</td></tr>
+            <tr><td></td><td></td><td>% dentro de Party</td><td>71.1%</td><td>28.9%</td><td>100.0%</td></tr>
+            <tr><td>Total</td><td></td><td>Recuento</td><td>59</td><td>41</td><td>100</td></tr>
+            <tr><td></td><td></td><td>Recuento esperado</td><td>59.0</td><td>41.0</td><td>100.0</td></tr>
+            <tr><td></td><td></td><td>% dentro de Party</td><td>59.0%</td><td>41.0%</td><td>100.0%</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 51. CHI-CUADRADO TERM LIMITS (diapositiva 51) ============ -->
+<section class="slide dense" data-sec="Capturas SPSS">
+  <div class="slide-inner">
+    <span class="tag-k r">Bloque 3 · Captura SPSS 16/17</span>
+    <h2>Resultado — Prueba de chi-cuadrado y gráfico de barras (Term Limits)</h2>
+    <div class="grid g-5-5 mt">
+      <div class="tbl-wrap">
+        <table class="t-compact t-spss">
+          <caption>Pruebas de chi-cuadrado · a. 0 casillas (0.0%) han esperado un recuento menor que 5. El recuento mínimo esperado es 7.79.</caption>
+          <thead><tr><th></th><th>Valor</th><th>df</th><th>Significación asintótica (bilateral)</th></tr></thead>
+          <tbody>
+            <tr><td>Chi-cuadrado de Pearson</td><td>5.112<sup>a</sup></td><td>2</td><td>.078</td></tr>
+            <tr><td>Razón de verosimilitud</td><td>5.186</td><td>2</td><td>.075</td></tr>
+            <tr><td>N de casos válidos</td><td>100</td><td></td><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <figure class="fig"><img src="assets/d51_barras_termlimits.jpg" alt="Gráfico de barras de SPSS: recuento por Party y Term Limits? (Democrat 17 y 19; Independent 10 y 9; Republican 32 y 13)" loading="lazy"></figure>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 52. CONCLUSIÓN TERM LIMITS (diapositiva 52) ============ -->
+<section class="slide" data-sec="Capturas SPSS">
+  <div class="slide-inner center">
+    <span class="tag-k r">Bloque 3 · Captura SPSS 17/17</span>
+    <h2>Conclusión de SPSS para la pregunta de límites de mandato</h2>
+    <div class="card mt" style="max-width:60ch">
+      <h3>Conclusión:</h3>
+      <p>Como (p=0.078&gt;0.05), <strong>no se rechaza la hipótesis nula de independencia</strong>.</p>
+      <p class="mb0">Por lo tanto, no existe evidencia estadística suficiente para afirmar que las dos variables analizadas estén asociadas.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 53. TAREA: STUDENT PERFORMANCE (diapositiva 53) ============ -->
+<section class="slide" data-sec="Tarea">
+  <div class="slide-inner center">
+    <p class="eyebrow">— Tarea</p>
+    <h2>Base de datos: Student Performance</h2>
+    <p>La base de datos <strong class="c1">Student Performance</strong>, elaborada por <strong class="c1">Paulo Cortez</strong> y disponible en el repositorio de aprendizaje automático de la Universidad de California en Irvine (UCI), contiene información de <strong class="c1">649 estudiantes</strong> de educación secundaria de dos escuelas portuguesas.</p>
+    <p>Los datos fueron recopilados mediante cuestionarios y registros escolares, e incluyen características demográficas, familiares, sociales y académicas: sexo, tipo de domicilio, apoyo educativo, acceso a Internet, participación en actividades extracurriculares, entre otras.</p>
+    <div class="callout">
+      <span class="k">Fuente y descarga</span>
+      <p class="mb0">Cortez, P. (2008). <em>Student Performance</em> [Dataset]. UCI Machine Learning Repository. <a href="https://archive.ics.uci.edu/dataset/320/student+performance" target="_blank" rel="noopener">archive.ics.uci.edu/dataset/320/student+performance</a> — <a href="https://doi.org/10.24432/C5TG7T" target="_blank" rel="noopener">doi.org/10.24432/C5TG7T</a></p>
+    </div>
+    <p class="hint">Con esta información, resuelve los dos ejercicios de las siguientes láminas usando SPSS y los mismos pasos que practicamos en clase.</p>
+  </div>
+</section>
+
+<!-- ============ 54. TAREA EJERCICIO 1 (diapositiva 54) ============ -->
+<section class="slide" data-sec="Tarea">
+  <div class="slide-inner center">
+    <p class="eyebrow">— Tarea · Ejercicio 1</p>
+    <h2>Sexo y actividades extracurriculares</h2>
+    <div class="callout">
+      <span class="k">Pregunta de investigación</span>
+      <p class="mb0">¿Existe una asociación estadísticamente significativa entre el sexo de los estudiantes y su participación en actividades extracurriculares?</p>
+    </div>
+    <p><strong>H<sub>0</sub>:</strong> el sexo y la participación en actividades extracurriculares son independientes.<br><strong>H<sub>a</sub>:</strong> el sexo y la participación en actividades extracurriculares están asociados.</p>
+    <ol class="steps">
+      <li>Elabora una <strong>tabla cruzada</strong> entre las variables Sexo y Actividades extracurriculares.</li>
+      <li>Incluye las <strong>frecuencias observadas, las frecuencias esperadas y los porcentajes por fila</strong>.</li>
+      <li>Realiza una <strong>prueba de chi-cuadrada de independencia</strong>, con α = 0.05.</li>
+      <li>Verifica que se cumpla el <strong>supuesto de las frecuencias esperadas</strong> (mínimo 5 por celda).</li>
+      <li>Determina si las variables son <strong>independientes</strong> o si existe una <strong>asociación estadísticamente significativa</strong>.</li>
+    </ol>
+  </div>
+</section>
+
+<!-- ============ 55. TAREA EJERCICIO 2 (diapositiva 55) ============ -->
+<section class="slide" data-sec="Tarea">
+  <div class="slide-inner center">
+    <p class="eyebrow">— Tarea · Ejercicio 2</p>
+    <h2>Domicilio e internet en casa</h2>
+    <div class="callout">
+      <span class="k">Pregunta de investigación</span>
+      <p class="mb0">¿Existe una asociación estadísticamente significativa entre el domicilio de los estudiantes y tener internet en casa?</p>
+    </div>
+    <p><strong>H<sub>0</sub>:</strong> el domicilio y el internet en casa son independientes.<br><strong>H<sub>a</sub>:</strong> el domicilio y el internet en casa están asociados.</p>
+    <ol class="steps">
+      <li>Elabora una <strong>tabla cruzada</strong> entre las variables Domicilio e Internet en casa.</li>
+      <li>Incluye las <strong>frecuencias observadas, las frecuencias esperadas y los porcentajes por fila</strong>.</li>
+      <li>Realiza una <strong>prueba de chi-cuadrada de independencia</strong>, con α = 0.05.</li>
+      <li>Verifica que se cumpla el <strong>supuesto de las frecuencias esperadas</strong> (mínimo 5 por celda).</li>
+      <li>Determina si las variables son <strong>independientes</strong> o si existe una <strong>asociación estadísticamente significativa</strong>.</li>
+    </ol>
+  </div>
+</section>
+
+<!-- ============ 56. ARTÍCULO: CASCOS (diapositiva 56) ============ -->
+<section class="slide" data-sec="Artículo científico">
+  <div class="slide-inner center">
+    <p class="eyebrow">— Artículo científico</p>
+    <h2>La χ² en la investigación real: cascos de ciclismo</h2>
+    <div class="callout">
+      <span class="k">Referencia</span>
+      <p class="mb0">Hardwicke, J., Baxter, B. A., Gamble, T., &amp; Hurst, H. T. (2022). An investigation into helmet use, perceptions of sports-related concussion, and seeking medical care for head injury amongst competitive cyclists. <em>International Journal of Environmental Research and Public Health, 19</em>(5), 2861.<br><a href="https://doi.org/10.3390/ijerph19052861" target="_blank" rel="noopener">doi.org/10.3390/ijerph19052861</a></p>
+    </div>
+    <p>Los autores investigaron las percepciones de <strong class="c1">405 ciclistas competitivos</strong> (edad promedio 43 años, de distintos sexos, disciplinas y niveles competitivos), quienes respondieron una encuesta en línea sobre:</p>
+    <div class="grid g3">
+      <div class="card"><span class="lab">01</span><h3>Uso del casco</h3><p class="mb0">Hábitos y disposición a usarlo aunque no fuera obligatorio.</p></div>
+      <div class="card"><span class="lab">02</span><h3>Percepción de protección</h3><p class="mb0">Si el casco protege realmente contra conmociones cerebrales.</p></div>
+      <div class="card"><span class="lab">03</span><h3>Atención médica</h3><p class="mb0">Si buscarían atención médica tras un golpe en la cabeza.</p></div>
+    </div>
+    <p class="hint mt-s">También se exploró la influencia de la publicidad en la decisión de compra del casco.</p>
+  </div>
+</section>
+
+<!-- ============ 57. ARTÍCULO: CÓMO APLICARON (diapositiva 57) ============ -->
+<section class="slide" data-sec="Artículo científico">
+  <div class="slide-inner center">
+    <p class="eyebrow">— Artículo científico</p>
+    <h2>¿Cómo aplicaron la prueba χ² de independencia?</h2>
+    <p>Los datos se analizaron en <strong class="c1">IBM SPSS Statistics v.26</strong>. Se usaron pruebas de chi-cuadrada para ver si las respuestas de la encuesta estaban relacionadas con cuatro características de los participantes:</p>
+    <div class="tbl-wrap">
+      <table class="t-c t-compact">
+        <thead><tr><th>Variable 1</th><th>Variable 2</th></tr></thead>
+        <tbody>
+          <tr><td>Grupo de edad</td><td>Respuesta a las preguntas</td></tr>
+          <tr><td>Sexo</td><td>Respuesta a las preguntas</td></tr>
+          <tr><td>Disciplina ciclista</td><td>Respuesta a las preguntas</td></tr>
+          <tr><td>Nivel competitivo</td><td>Respuesta a las preguntas</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout">
+      <span class="k">Ejemplo: edad y uso de casco</span>
+      <p class="mb0">H<sub>0</sub>: la intención de usar casco es independiente de la edad.<br>H<sub>a</sub>: la intención de usar casco está relacionada con la edad.<br>Grupos de edad: 18–30, 31–49 y 50 años o más · α = 0.05</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 58. ARTÍCULO: RESULTADO PRINCIPAL (diapositiva 58) ============ -->
+<section class="slide" data-sec="Artículo científico">
+  <div class="slide-inner center">
+    <p class="eyebrow">— Artículo científico</p>
+    <h2>Resultado principal: edad y uso de casco</h2>
+    <p class="lead">¿Usaría casco en una competencia aunque no fuera obligatorio? Las respuestas afirmativas, por grupo de edad:</p>
+    <div class="tbl-wrap">
+      <table class="t-c">
+        <thead><tr><th>Grupo de edad</th><th>Usaría casco</th></tr></thead>
+        <tbody>
+          <tr><td><strong>18–30 años</strong></td><td><strong>100.0%</strong></td></tr>
+          <tr><td><strong>31–49 años</strong></td><td><strong>96.4%</strong></td></tr>
+          <tr><td><strong>50 años o más</strong></td><td><strong>90.4%</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout">
+      <span class="k">Resultado y decisión</span>
+      <p class="mb0">χ² = 10.752, valor-p = 0.004. Como p = 0.004 ≤ α = 0.05, <strong>se rechaza H<sub>0</sub></strong>: existe una asociación estadísticamente significativa entre la edad y la intención de usar casco. El grupo de 50 años o más mostró menor intención de usarlo cuando no era obligatorio.</p>
+    </div>
+    <p class="hint">Importante: esto no significa que cumplir 50 años "cause" que alguien deje de usar casco — la prueba solo muestra que, en esta muestra, las variables no se comportaron como completamente independientes.</p>
+  </div>
+</section>
+
+<!-- ============ 59. ARTÍCULO: OTRAS ASOCIACIONES (diapositiva 59) ============ -->
+<section class="slide" data-sec="Artículo científico">
+  <div class="slide-inner center">
+    <p class="eyebrow">— Artículo científico</p>
+    <h2>Otras asociaciones encontradas con χ²</h2>
+    <div class="tbl-wrap mt">
+      <table class="t-c t-compact t-wrap">
+        <thead><tr><th>Variables comparadas</th><th>χ²</th><th>valor-p</th><th>Hallazgo</th></tr></thead>
+        <tbody>
+          <tr><td>Disciplina y uso voluntario del casco</td><td>39.956</td><td>0.001</td><td>Ciclistas de larga distancia/audax: menor intención de usarlo</td></tr>
+          <tr><td>Disciplina y saber que el casco no evita conmociones</td><td>30.681</td><td>0.013</td><td>BMX y larga distancia acertaron más</td></tr>
+          <tr><td>Disciplina y percepción de protección cerebral</td><td>29.787</td><td>0.015</td><td>—</td></tr>
+          <tr><td>Disciplina e influencia de la publicidad</td><td>33.265</td><td>0.006</td><td>Larga distancia: menos influenciados</td></tr>
+          <tr><td>Edad e influencia de la publicidad</td><td>11.891</td><td>0.018</td><td>18–30 años: los más influenciados</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout">
+      <span class="k">Por qué cierra bien la clase</span>
+      <p class="mb0">Este artículo muestra, con datos reales publicados en una revista científica, exactamente el mismo procedimiento que practicamos hoy: plantear H<sub>0</sub>/H<sub>a</sub>, cruzar variables categóricas, obtener χ² y un valor-p en SPSS, y decidir si rechazar o no la hipótesis nula — con las mismas reglas (α = 0.05) que usamos con Alber's Brewery y con la reforma de Nueva York.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 60. MATERIALES (agregada en la versión web) ============ -->
+<section class="slide" data-sec="Materiales">
+  <div class="slide-inner center">
+    <p class="eyebrow">Materiales de la sesión</p>
+    <h2>Lo que necesitas tener a la mano</h2>
+    <div class="grid g-6-4 mt">
+      <div>
+        <div class="card">
+          <h3>Bases de datos para SPSS</h3>
+          <p class="hint">Abren directo en SPSS con Archivo → Abrir → Datos.</p>
+          <div class="dl">
+            <a href="datos/Cerveceria.sav" download>Cerveceria <span class="mono">.sav</span></a>
+            <a href="datos/NYReform.sav" download>NYReform <span class="mono">.sav</span></a>
+            <a href="datos/Student_Performance.sav" download>Student_Performance <span class="mono">.sav</span></a>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="card">
+          <h3>Documentos</h3>
+          <div class="dl" style="flex-direction:column">
+            <a href="docs/Presentacion_chi_cuadrada.pdf" download>Esta presentación en PDF <span class="mono">PDF</span></a>
+            <a href="docs/Guia_SPSS_Chi_Cuadrada.pdf" download>Guía práctica: chi-cuadrada en SPSS <span class="mono">PDF</span></a>
+            <a href="docs/Hardwicke_2022_helmet_use.pdf" download>Artículo Hardwicke et al. (2022) <span class="mono">PDF</span></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 61. ÍNDICE FINAL (agregada en la versión web) ============ -->
+<section class="slide" data-sec="Índice">
+  <div class="slide-inner center">
+    <p class="eyebrow">Universidad de Sonora · Doctorado en Ciencias Económicas y Administrativas</p>
+    <h2>La prueba Chi-cuadrado (χ²)</h2>
+    <p class="lead">Pulsa cualquier bloque para volver a él. También funcionan las teclas <kbd>1</kbd> a <kbd>7</kbd>.</p>
+    <div class="blocks" id="blocks-fin" style="margin:22px 0 0"></div>
+    <p class="hint mt">Maritza Moreno Grano · Procesamiento y análisis de datos · 1 de octubre de 2026</p>
+  </div>
+</section>
+
+</div><!-- /#deck -->
+
+<div id="menu">
+  <div class="mwrap">
+    <div class="mh">
+      <h2>Bloques de la sesión</h2>
+      <p class="msub">Pulsa el número del bloque para saltar directo · <kbd>M</kbd> o <kbd>Esc</kbd> para volver</p>
+    </div>
+    <div class="blocks" id="blocks"></div>
+    <h3 style="font-size:15px;margin-bottom:14px">Todas las láminas</h3>
+    <div class="toc" id="toc"></div>
+  </div>
+</div>
+
+<div id="bar">
+  <button id="btn-menu" title="Bloques (M)">Bloques</button>
+  <button id="btn-prev" title="Anterior (←)">←</button>
+  <button id="btn-next" title="Siguiente (→)">→</button>
+  <span class="sec" id="secname"></span>
+  <button id="btn-theme" title="Tema (T)">Tema</button>
+  <button id="btn-print" title="Exportar a PDF">PDF</button>
+  <span class="cnt" id="counter"></span>
+</div>
+
+<script>
+"use strict";
+/* ==================== UTILIDADES ==================== */
+const $ = (s,r) => (r||document).querySelector(s);
+const $$ = (s,r) => Array.from((r||document).querySelectorAll(s));
+const TIP = $("#tip");
+function tipOff(){ TIP.classList.remove("on"); }
+
+/* ==================== MOTOR DE DIAPOSITIVAS ==================== */
+const slides = $$(".slide");
+let cur = 0;
+
+/* Bloques según la estructura de la expositora. a y b son la primera y la
+   última lámina, 1-indexadas. La tecla de cada bloque es su posición (1 a 7). */
+const BLOQUES = [
+  {k:"",  t:"Introducción",                  a:1,  b:2,  d:"Portada y los tres bloques"},
+  {k:"1", t:"La distribución χ²",            a:3,  b:14, d:"Qué es, de dónde sale, cómo se calcula"},
+  {k:"2", t:"Prueba de independencia",       a:15, b:27, d:"Café y cervecería Alber's, paso a paso"},
+  {k:"3", t:"Práctica en SPSS",              a:28, b:32, d:"Pasos, lectura de la salida y errores comunes"},
+  {k:"3", t:"Ejercicio de práctica: NYReform", a:33, b:52, d:"Caso Nueva York y 17 capturas de SPSS"},
+  {k:"",  t:"Tarea",                         a:53, b:55, d:"Student Performance, ejercicios 1 y 2"},
+  {k:"",  t:"Artículo científico",           a:56, b:59, d:"Hardwicke et al. (2022), cascos de ciclismo"},
+  {k:"",  t:"Materiales e índice",           a:60, b:61, d:"Descargas y navegación final"},
+];
+const bloqueDe = n => BLOQUES.find(x=> n>=x.a && n<=x.b) || BLOQUES[0];
+
+function go(i){
+  cur = Math.max(0, Math.min(slides.length-1, i));
+  slides.forEach((s,k)=>s.classList.toggle("active", k===cur));
+  slides[cur].scrollTop = 0;
+  $("#counter").textContent = `${cur+1} / ${slides.length}`;
+  const bq = bloqueDe(cur+1);
+  const sec = slides[cur].dataset.sec || "";
+  const cola = (sec && sec !== bq.t) ? bq.t + " · " + sec : bq.t;
+  $("#secname").innerHTML =
+    (bq.k ? `<span class="bchip">Bloque ${bq.k}</span><span>${cola}</span>`
+          : `<span class="bchip g">${bq.t}</span>${sec && sec!==bq.t ? `<span>${sec}</span>` : ""}`);
+  $("#prog").style.width = ((cur+1)/slides.length*100)+"%";
+  marcarMenu();
+  try{ location.hash = "d"+(cur+1); }catch(e){}
+  tipOff();
+}
+function irABloque(idx){
+  const bq = BLOQUES[idx];
+  if(!bq) return;
+  go(bq.a-1);
+  $("#menu").classList.remove("on");
+}
+function marcarMenu(){
+  const bq = bloqueDe(cur+1);
+  $$("#blocks .blk").forEach((b,i)=>b.classList.toggle("now", BLOQUES[i]===bq));
+  $$("#toc button").forEach((b,i)=>b.classList.toggle("now", i===cur));
+}
+function next(){ go(cur+1); }
+function prev(){ go(cur-1); }
+
+document.addEventListener("keydown", e=>{
+  if(/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+  const menuOpen = $("#menu").classList.contains("on");
+  if(e.key==="Escape"){ $("#menu").classList.remove("on"); return; }
+  if(e.key==="m"||e.key==="M"){ $("#menu").classList.toggle("on"); return; }
+  if(menuOpen) return;
+  if(e.key==="ArrowRight"||e.key===" "||e.key==="PageDown"){ e.preventDefault(); next(); }
+  else if(e.key==="ArrowLeft"||e.key==="PageUp"){ e.preventDefault(); prev(); }
+  else if(e.key==="Home"){ go(0); }
+  else if(e.key==="End"){ go(slides.length-1); }
+  else if(e.key>="1" && e.key<="7"){ irABloque(+e.key); }
+  else if(e.key==="0"){ go(0); }
+  else if(e.key==="t"||e.key==="T"){ toggleTheme(); }
+  else if(e.key==="f"||e.key==="F"){
+    if(document.fullscreenElement) document.exitFullscreen();
+    else document.documentElement.requestFullscreen().catch(()=>{});
+  }
+});
+
+/* gestos táctiles */
+let tx=0, ty=0;
+document.addEventListener("touchstart", e=>{ tx=e.changedTouches[0].clientX; ty=e.changedTouches[0].clientY; }, {passive:true});
+document.addEventListener("touchend", e=>{
+  const dx=e.changedTouches[0].clientX-tx, dy=e.changedTouches[0].clientY-ty;
+  if(Math.abs(dx)>62 && Math.abs(dx)>Math.abs(dy)*1.6){ dx<0?next():prev(); }
+}, {passive:true});
+
+$("#btn-next").onclick = next;
+$("#btn-prev").onclick = prev;
+$("#btn-menu").onclick = ()=>$("#menu").classList.toggle("on");
+$("#btn-print").onclick = ()=>{ $("#menu").classList.remove("on"); setTimeout(()=>window.print(), 90); };
+
+/* navegador de bloques + índice completo */
+function tarjetasBloque(cont){
+  BLOQUES.forEach((bq,i)=>{
+    const n = bq.b - bq.a + 1;
+    const b = document.createElement("button");
+    b.className = "blk";
+    b.innerHTML =
+      `<span class="bn">${bq.k ? "Bloque "+bq.k : "&nbsp;"}</span>` +
+      `<span class="bt">${bq.t}</span>` +
+      `<span class="bm"><span>${n} lámina${n>1?"s":""}</span><span>·</span><span>${bq.d}</span>` +
+      (i>=1 && i<=7 ? `<span class="kbd">${i}</span>` : "") + `</span>`;
+    b.onclick = ()=>irABloque(i);
+    cont.appendChild(b);
+  });
+}
+(function buildMenu(){
+  tarjetasBloque($("#blocks"));
+  const toc = $("#toc");
+  let last = null;
+  slides.forEach((s,i)=>{
+    const bq = bloqueDe(i+1);
+    const etq = (bq.k ? "Bloque "+bq.k+" · " : "") + bq.t;
+    if(etq!==last){
+      const h = document.createElement("div"); h.className="h"; h.textContent = etq;
+      toc.appendChild(h); last = etq;
+    }
+    const h2 = s.querySelector("h1,h2");
+    const b = document.createElement("button");
+    const titulo = h2 ? h2.innerHTML.replace(/<br\s*\/?>/gi," ").replace(/<[^>]+>/g,"").replace(/\s+/g," ").trim() : (s.dataset.sec||"");
+    b.innerHTML = `<span class="n">${i+1}</span><span>${titulo}</span>`;
+    b.onclick = ()=>{ go(i); $("#menu").classList.remove("on"); };
+    toc.appendChild(b);
+  });
+  const fin = $("#blocks-fin");
+  if(fin) tarjetasBloque(fin);
+})();
+
+/* tema */
+function toggleTheme(){
+  const now = document.documentElement.getAttribute("data-theme")==="dark" ? "light" : "dark";
+  document.documentElement.setAttribute("data-theme", now);
+  try{ localStorage.setItem("tema", now); }catch(e){}
+}
+$("#btn-theme").onclick = toggleTheme;
+(function initTheme(){
+  let t = null;
+  try{ t = localStorage.getItem("tema"); }catch(e){}
+  if(!t) t = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  document.documentElement.setAttribute("data-theme", t);
+})();
+
+/* ==================== ARRANQUE ==================== */
+const h = (location.hash||"").match(/^#d(\d+)$/);
+go(h ? Math.min(slides.length, Math.max(1, +h[1]))-1 : 0);
+
+/* al imprimir, activar todas las diapositivas */
+window.addEventListener("beforeprint", ()=>slides.forEach(s=>s.classList.add("active")));
+window.addEventListener("afterprint", ()=>go(cur));
+</script>
+</body>
+</html>
